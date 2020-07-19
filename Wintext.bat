@@ -60,11 +60,14 @@ set /a undo-=1 2> nul
 goto :textadd
 
 :undoclear
+set undo=11
+
+:undoclear1
 if %undo% equ 1 set undo=11
 del /a h "%dir%%filename%%undo%" 2> nul
 set /a undo-=1
 if %undo% leq 1 goto :exit
-goto :undoclear
+goto :undoclear1
 
 :help
 cls
