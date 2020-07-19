@@ -89,8 +89,10 @@ pause
 goto :textadd
 
 :exit
-set /a undo=1
-del "%dir%%filename%%undo%" 2> nul
+set undo=1
+del /a h "%dir%%filename%%undo%" 2> nul
+set undo=1
+del /a h "%dir%%filename%%undo%" 2> nul
 cls
 
 echo Thank you for using WinTXT!
