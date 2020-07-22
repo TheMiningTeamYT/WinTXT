@@ -15,12 +15,19 @@ When you get in, to use commands you type these at the "Type" Prompt:
 /exit : Exit the program
 /undo : Undo the last thing you typed in
 /help : View the help page.
+/redo : Redo the last thing you un-did
+/del : Delete the document you're working on (You can undo this with /undo)
+/linebreak : Insert a linebreak
 
 # 3: Limitations
 
-This text editor has no creature comforts. Moving up in the text to edit things from before? Forget about it. Fancy formatting? Nada. Adding line-breaks? Nope.
+This text editor has no creature comforts. Moving up in the text to edit things from before? Forget about it. Fancy formatting? Nada.
 You just type in text line by line. However, as people more talented then me join and contribute to WinTXT, hopefully some of these things will be added in.
 
 # 4: Conclusion
 
 This text editor is great if you have 4KB left on your disk. Otherwise, as of now it's a bottlenecked to the point of near uselessness text editor made in 1 day by someone who isn't great at batch scripts.
+
+# 5: What to look forward to:
+
+Though as of now this program is very limited, editing past lines is in the designing phase (aka figuring out how to implement this), and features are being added my me every so often.
