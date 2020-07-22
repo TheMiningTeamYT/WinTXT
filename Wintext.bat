@@ -36,11 +36,14 @@ echo =====Current Undo State is: %undo%=====
 echo =====%dir%%filename%=====
 type "%dir%%filename%" 2> nul
 echo.
+attrib -h "%dir%%filename%%undo%" > nul
 copy /y "%dir%%filename%" "%dir%%filename%%undo%" > nul 2>nul
-attrib +h "%dir%%filename%%undo%"
+attrib +h "%dir%%filename%%undo%" > nul
 set /p text="Type:" 2> nul
 (echo %text% | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo %text% >> "%dir%%filename%" 2> nul) 
-(echo %text% | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo.)
+(echo %text% | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
+(echo %text% | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
+(echo %text% | findstr /i /c:"/del" >nul ) && (goto :del) || (echo. > nul )
 (echo %text% | findstr /i /c:"/help" >nul ) && (goto :help) || (goto :textadd)
 
 :fileopen
@@ -57,6 +60,17 @@ if %undo% equ 1 set undo=11
 set /a undo-=1 2> nul
 type "%dir%%filename%%undo%" > "%dir%%filename%"
 set /a undo-=1 2> nul
+goto :textadd
+
+:redo
+if %undo% equ 10 set undo=0
+set /a undo+=1 2> nul
+type "%dir%%filename%%undo%" > "%dir%%filename%"
+set /a undo-=1 2> nul
+goto :textadd
+
+:del
+del %dir%%filename% 
 goto :textadd
 
 :undoclear
