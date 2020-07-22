@@ -44,6 +44,7 @@ set /p text="Type:" 2> nul
 (echo %text% | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
 (echo %text% | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
 (echo %text% | findstr /i /c:"/del" >nul ) && (goto :del) || (echo. > nul )
+(echo %text% | findstr /i /c:"/linebreak" >nul ) && (goto :linebreak) || (echo. > nul )
 (echo %text% | findstr /i /c:"/help" >nul ) && (goto :help) || (goto :textadd)
 
 :fileopen
@@ -71,6 +72,10 @@ goto :textadd
 
 :del
 del %dir%%filename% 
+goto :textadd
+
+:linebreak
+echo. >> %dir%%filename%
 goto :textadd
 
 :undoclear
