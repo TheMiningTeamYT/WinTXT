@@ -28,6 +28,6 @@ You just type in text line by line. However, as people more talented then me joi
 
 This text editor is great if you have 4KB left on your disk. Otherwise, as of now it's a bottlenecked to the point of near uselessness text editor made in 1 day by someone who isn't great at batch scripts.
 
-# 5: What to look forward to:
+# 5: What to look forward to
 
 Though as of now this program is very limited, editing past lines is in the designing phase (aka figuring out how to implement this), and features are being added my me every so often.
