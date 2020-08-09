@@ -1,7 +1,7 @@
 @echo off
 set undo=0
 set baseline=
-set arg1=%1
+set arg1="%1"
 if "%arg1%"=="%baseline%" goto :beginning
 goto :fileopen
 
@@ -25,7 +25,32 @@ if not defined dir set dir="%userprofile%\NanoDocs"
 cls
 if not exist "%dir%" mkdir "%dir%
 
-echo. >> %dir%%filename%
+echo. >> "%dir%%filename%"
+call :split
+goto :textadd
+
+:SPLIT
+SETLOCAL
+SET /a fcount=1999999999
+SET /a llimit=1
+SET /a lcount=%llimit%
+FOR /f "usebackqdelims=" %%a IN (%dir%%filename%) DO (
+ CALL :select
+ >>"%dir%%filename%$$" ECHO(%%a
+)
+SET /a lcount=%llimit%
+:select
+SET /a lcount+=1
+IF %lcount% lss %llimit% GOTO :EOF
+SET /a lcount=0
+SET /a fcount+=1
+MOVE /y "%dir%%filename%$$" "%dir%%filename%line%fcount:~-9%" >NUL 2>nul
+attrib +h "%dir%%filename%line%fcount:~-9%"
+echo %fcount:~-9% > "%dir%%filename%lines"
+attrib +h "%dir%%filename%lines"
+echo !!!THE LINE ABOVE IS CAUSING ACCESS DENIED ERRORS!!!
+pause
+GOTO :EOF
 
 :textadd
 set /a undo+=1
@@ -34,26 +59,58 @@ if %undo% geq 11 set undo=1
 echo =====WinTXT -- A Command Line Editor For Windows=====
 echo =====Current Undo State is: %undo%=====
 echo =====%dir%%filename%=====
-type "%dir%%filename%" 2> nul
+
+
+set /p fcount=<"%dir%%filename%lines"
+set lcount=0
+
+:linebyline
+set /a lcount+=1
+set lcount1=%lcount%
+for /f %%a in ('type "%lcount1%"^|find "" /v /c') do set /a cnt=%%a
+echo !!!THE LINE ABOVE IS CAUSING INVALID SYNTAX ERRORS!!!
+if %cnt% LSS 9 call :extend
+if "%lcount1%"=="%fcount%" goto :edit
+call :displayline
+
+
+:extend
+set %lcount1%="0%lcount1%"
+for /f %%a in ('type "%lcount1%"^|find "" /v /c') do set /a cnt=%%a
+if %cnt% lss 9 goto :extend
+call :displayline
+exit /b
+
+
+:displayline
+set /p line=<"%dir%%filename%%lcount1%"
+echo Line %lcount% : %line%
+exit /b
+
+
+
+:edit
 echo.
 attrib -h "%dir%%filename%%undo%" > nul
 copy /y "%dir%%filename%" "%dir%%filename%%undo%" > nul 2>nul
 attrib +h "%dir%%filename%%undo%" > nul
 set /p text="Type:" 2> nul
-(echo %text% | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo %text% >> "%dir%%filename%" 2> nul) 
 (echo %text% | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
 (echo %text% | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
 (echo %text% | findstr /i /c:"/del" >nul ) && (goto :del) || (echo. > nul )
 (echo %text% | findstr /i /c:"/linebreak" >nul ) && (goto :linebreak) || (echo. > nul )
+(echo %text% | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo %text% >> "%dir%%filename%" 2> nul) 
 (echo %text% | findstr /i /c:"/help" >nul ) && (goto :help) || (goto :textadd)
 
 :fileopen
 set dir=
 set filename=%arg1%
+call :split
 goto :textadd
 
 :skip
-set %dir%= 
+set %dir%=
+call :split
 goto :textadd
 
 :undo
@@ -71,11 +128,11 @@ set /a undo-=1 2> nul
 goto :textadd
 
 :del
-del %dir%%filename% 
+del "%dir%%filename%"
 goto :textadd
 
 :linebreak
-echo. >> %dir%%filename%
+echo. >> "%dir%%filename%"
 goto :textadd
 
 :undoclear
@@ -101,6 +158,10 @@ echo.
 echo /exit : Exit Nano For Windows.
 echo /undo : Undo the previous command.
 echo /help : This help screen.
+echo /redo : Redo the previous undone command.
+echo /del : Delete the current file. (can be undone with /undo.)
+echo /linebreak : Insert a line break.
+echo /line (line number) : Coming...
 echo.
 echo And, if you have any bugs / need help, please email helpmewithstuff@protonmail.com .
 pause
