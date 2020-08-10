@@ -26,7 +26,6 @@ cls
 if not exist "%dir%" mkdir "%dir%
 
 echo. >> "%dir%%filename%"
-call :split
 goto :textadd
 
 :SPLIT
@@ -41,15 +40,12 @@ FOR /f "usebackqdelims=" %%a IN (%dir%%filename%) DO (
 SET /a lcount=%llimit%
 :select
 SET /a lcount+=1
-IF %lcount% lss %llimit% GOTO :EOF
+IF %lcount% lss %llimit% GOTO :EOF >NUL 2>nul
 SET /a lcount=0
 SET /a fcount+=1
 MOVE /y "%dir%%filename%$$" "%dir%%filename%line%fcount:~-9%" >NUL 2>nul
-attrib +h "%dir%%filename%line%fcount:~-9%"
-echo %fcount:~-9% > "%dir%%filename%lines"
-attrib +h "%dir%%filename%lines"
-echo !!!THE LINE ABOVE IS CAUSING ACCESS DENIED ERRORS!!!
-pause
+attrib +h "%dir%%filename%line%fcount:~-9%" >NUL 2>nul
+echo %fcount:~-9% > "%dir%%filename%fcount"
 GOTO :EOF
 
 :textadd
@@ -60,34 +56,21 @@ echo =====WinTXT -- A Command Line Editor For Windows=====
 echo =====Current Undo State is: %undo%=====
 echo =====%dir%%filename%=====
 
+call :split
+set /p fcount2= < "%dir%%filename%fcount"
+del "%dir%%filename%fcount"
 
-set /p fcount=<"%dir%%filename%lines"
-set lcount=0
+set lcount=2000000000
 
 :linebyline
 set /a lcount+=1
-set lcount1=%lcount%
-for /f %%a in ('type "%lcount1%"^|find "" /v /c') do set /a cnt=%%a
-echo !!!THE LINE ABOVE IS CAUSING INVALID SYNTAX ERRORS!!!
-if %cnt% LSS 9 call :extend
-if "%lcount1%"=="%fcount%" goto :edit
-call :displayline
-
-
-:extend
-set %lcount1%="0%lcount1%"
-for /f %%a in ('type "%lcount1%"^|find "" /v /c') do set /a cnt=%%a
-if %cnt% lss 9 goto :extend
-call :displayline
-exit /b
-
-
-:displayline
-set /p line=<"%dir%%filename%%lcount1%"
-echo Line %lcount% : %line%
-exit /b
-
-
+set /p Line= <"%dir%%filename%line%lcount:~-9%"
+set lcount1=%lcount:~-9%
+set /a lcount1+=1
+set /a lcount1-=1
+echo Line: %lcount1% : %Line%
+if %lcount:~-9% equ %fcount2% goto :edit
+goto :linebyline
 
 :edit
 echo.
@@ -98,19 +81,24 @@ set /p text="Type:" 2> nul
 (echo %text% | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
 (echo %text% | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
 (echo %text% | findstr /i /c:"/del" >nul ) && (goto :del) || (echo. > nul )
+(echo %text% | findstr /i /c:"/line" >nul ) && (goto :line) || (echo. > nul )
 (echo %text% | findstr /i /c:"/linebreak" >nul ) && (goto :linebreak) || (echo. > nul )
-(echo %text% | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo %text% >> "%dir%%filename%" 2> nul) 
-(echo %text% | findstr /i /c:"/help" >nul ) && (goto :help) || (goto :textadd)
+(echo %text% | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo. > nul ) 
+(echo %text% | findstr /i /c:"/help" >nul ) && (goto :help) || (goto :addtext)
+
+:addtext
+echo %text% >> "%dir%%filename%" 2> nul
+goto :textadd
 
 :fileopen
 set dir=
 set filename=%arg1%
-call :split
+echo. >> "%dir%%filename%"
 goto :textadd
 
 :skip
 set %dir%=
-call :split
+echo. >> "%dir%%filename%"
 goto :textadd
 
 :undo
@@ -134,6 +122,81 @@ goto :textadd
 :linebreak
 echo. >> "%dir%%filename%"
 goto :textadd
+
+:line
+set text=%text:/line =%
+echo 1
+echo %text%
+pause
+set lcount=2000000000
+echo 2
+pause
+set /a lcount+=%text%
+echo 3
+echo %lcount%
+pause
+set lcount1=%lcount:~-9%
+echo 4
+echo %lcount1%
+pause
+set /a lcount1+=1
+echo 5
+echo %lcount1%
+pause
+set /a lcount1+=1
+echo 6
+echo %lcount1%
+set /a undo+=1
+cls
+if %undo% geq 11 set undo=1
+echo =====WinTXT -- A Command Line Editor For Windows=====
+echo =====Current Undo State is: %undo%=====
+echo =====%dir%%filename%=====
+echo =====Current Line Is: %lcount1%=====
+echo.
+set /p Line= <"%dir%%filename%line%lcount:~-9%"
+echo Line: %lcount1% : %Line%
+echo %lcount:~-9%%
+echo %line%
+echo.
+attrib -h "%dir%%filename%%undo%" > nul
+copy /y "%dir%%filename%" "%dir%%filename%%undo%" > nul 2>nul
+attrib +h "%dir%%filename%%undo%" > nul
+set /p text="Type:" 2> nul
+(echo %text% | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
+(echo %text% | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
+(echo %text% | findstr /i /c:"/del" >nul ) && (goto :del) || (echo. > nul )
+(echo %text% | findstr /i /c:"/line" >nul ) && (goto :line) || (echo. > nul )
+(echo %text% | findstr /i /c:"/linebreak" >nul ) && (goto :linebreak) || (echo. > nul )
+(echo %text% | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo. > nul ) 
+(echo %text% | findstr /i /c:"/help" >nul ) && (goto :help) || (goto :addtextline)
+
+:addtextline
+echo %text% >> "%dir%%filename%line%lcount:~-9%" 2> nul
+goto :rebuild
+
+:rebuild
+echo We can defeat COVID!
+set lcount=2000000000
+
+set /a lcount+=1
+set /p Line= <"%dir%%filename%line%lcount:~-9%"
+set lcount1=%lcount:~-9%
+set /a lcount1+=1
+set /a lcount1-=1
+echo %Line% > "%dir%%filename%"
+
+:rebuildlinebyline
+set /a lcount+=1
+set /p Line= <"%dir%%filename%line%lcount:~-9%"
+set lcount1=%lcount:~-9%
+set /a lcount1+=1
+set /a lcount1-=1
+echo %Line% >> "%dir%%filename%"
+if %lcount:~-9% equ %fcount2% goto :textadd
+goto :rebuildlinebyline
+
+
 
 :undoclear
 set undo=11
