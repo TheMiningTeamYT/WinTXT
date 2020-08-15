@@ -5,6 +5,8 @@ set newline=0
 set baseline=
 set arg1="%1"
 if "%arg1%"=="%baseline%" goto :beginning
+set baseline=""
+if "%arg1%"=="%baseline%" goto :beginning
 goto :fileopen
 
 :beginning
@@ -22,7 +24,7 @@ if exist %filename% goto :skip
 cls
 echo Where would you like to place your file? (Default is (your user directory)\WinTXTDocs)
 set /p dir="Enter Directory:"
-if not defined dir set dir="%userprofile%\NanoDocs"
+if not defined dir set dir=%userprofile%\NanoDocs\
 
 cls
 if not exist "%dir%" mkdir "%dir%
