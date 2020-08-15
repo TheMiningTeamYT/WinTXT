@@ -93,6 +93,7 @@ set /p text="Type:" 2> nul
 (echo "%text%" | findstr /i /c:"/newline" >nul ) && (goto :newline) || (echo. > nul )
 (echo "%text%" | findstr /i /c:"/delline" >nul ) && (goto :delline) || (echo. > nul )
 (echo "%text%" | findstr /i /c:"/linebreak" >nul ) && (goto :linebreak) || (echo. > nul )
+(echo "%text%" | findstr /i /c:"/typefile" >nul ) && (goto :typefile) || (echo. > nul )
 (echo "%text%" | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo. > nul ) 
 (echo "%text%" | findstr /i /c:"/help" >nul ) && (goto :help) || (goto :addtext)
 
@@ -111,6 +112,11 @@ set /a lcount+=%text%
 del /a h "%dir%%filename%line%lcount:~-9%"
 goto :rebuild
 
+:typefile
+cls
+type "%dir%%filename%"
+pause
+goto :textadd
 
 :fileopen
 set dir=
@@ -149,7 +155,7 @@ goto :textadd
 :line
 if %newline% equ 1 (
     set text=%text:/newline =%
-    set text-=1
+    set /a text-=1
     goto :linepart2
 )
 set text=%text:/editline =%
@@ -178,7 +184,8 @@ set /p text="Type:" 2> nul
 (echo "%text%" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
 (echo "%text%" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
 (echo "%text%" | findstr /i /c:"/del" >nul ) && (goto :del) || (echo. > nul )
-(echo "%text%" | findstr /i /c:"/linebreak" >nul ) && (goto :linebreak) || (echo. > nul )
+(echo "%text%" | findstr /i /c:"/linebreak" >nul ) && (goto :linelinebreak) || (echo. > nul )
+(echo "%text%" | findstr /i /c:"/typefile" >nul ) && (goto :typefile) || (echo. > nul )
 (echo "%text%" | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo. > nul ) 
 (echo "%text%" | findstr /i /c:"/help" >nul ) && (goto :help) || (echo. > nul)
 if %newline% equ 1 (
@@ -196,6 +203,15 @@ goto :rebuild
 attrib -h "%dir%%filename%line%lcount:~-9%"
 echo %text% >> "%dir%%filename%line%lcount:~-9%"
 attrib +h "%dir%%filename%line%lcount:~-9%"
+goto :rebuild
+
+:linelinebreak
+attrib -h "%dir%%filename%line%lcount:~-9%"
+if %newline% equ 1 (
+    echo. >> "%dir%%filename%line%lcount:~-9%"
+    goto :rebuild
+)
+echo. > "%dir%%filename%line%lcount:~-9%"
 goto :rebuild
 
 :rebuild
@@ -239,6 +255,7 @@ echo /help : This help screen.
 echo /redo : Redo the previous undone command.
 echo /del : Delete the current file. (can be undone with /undo.)
 echo /linebreak : Insert a line break.
+echo /typefile : Type the file normally instead of having the line markings.
 echo /editline (line number) : Edit that line
 echo /newline (line number) : Add that line
 echo /delline (line number) : Delete that line.
@@ -261,7 +278,8 @@ del /a h "%dir%%filename%%undo%" 2> nul
 cls
 
 set lcount=2000000000
-set /a fcount2+=100
+
+set /a fcount2+=1000
 set /a fcount2+=2000000000
 set fcount=%fcount:~-9%
 
