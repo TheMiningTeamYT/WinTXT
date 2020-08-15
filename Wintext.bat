@@ -32,12 +32,13 @@ goto :textadd
 
 :SPLIT
 SETLOCAL
+copy "%dir%%filename%" temp.txt > nul
 SET /a fcount=1999999999
 SET /a llimit=1
 SET /a lcount=%llimit%
-FOR /f "usebackqdelims=" %%a IN (%dir%%filename%) DO (
+FOR /f "usebackqdelims=" %%a IN (temp.txt) DO (
  CALL :select
- >>"%dir%%filename%$$" ECHO(%%a
+ >>"temp.txt$$" ECHO(%%a
 )
 SET /a lcount=%llimit%
 :select
@@ -45,7 +46,7 @@ SET /a lcount+=1
 IF %lcount% lss %llimit% GOTO :EOF >NUL 2>nul
 SET /a lcount=0
 SET /a fcount+=1
-MOVE /y "%dir%%filename%$$" "%dir%%filename%line%fcount:~-9%" >NUL 2>nul
+MOVE /y "temp.txt$$" "%dir%%filename%line%fcount:~-9%" >NUL 2>nul
 attrib +h "%dir%%filename%line%fcount:~-9%" >NUL 2>nul
 echo %fcount:~-9% > "%dir%%filename%fcount"
 GOTO :EOF
@@ -83,15 +84,15 @@ attrib -h "%dir%%filename%%undo%" > nul
 copy /y "%dir%%filename%" "%dir%%filename%%undo%" > nul 2>nul
 attrib +h "%dir%%filename%%undo%" > nul
 set /p text="Type:" 2> nul
-(echo %text% | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
-(echo %text% | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
-(echo %text% | findstr /i /c:"/delfile" >nul ) && (goto :del) || (echo. > nul )
-(echo %text% | findstr /i /c:"/editline" >nul ) && (goto :line) || (echo. > nul )
-(echo %text% | findstr /i /c:"/newline" >nul ) && (goto :newline) || (echo. > nul )
-(echo %text% | findstr /i /c:"/delline" >nul ) && (goto :delline) || (echo. > nul )
-(echo %text% | findstr /i /c:"/linebreak" >nul ) && (goto :linebreak) || (echo. > nul )
-(echo %text% | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo. > nul ) 
-(echo %text% | findstr /i /c:"/help" >nul ) && (goto :help) || (goto :addtext)
+(echo "%text%" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
+(echo "%text%" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
+(echo "%text%" | findstr /i /c:"/delfile" >nul ) && (goto :del) || (echo. > nul )
+(echo "%text%" | findstr /i /c:"/editline" >nul ) && (goto :line) || (echo. > nul )
+(echo "%text%" | findstr /i /c:"/newline" >nul ) && (goto :newline) || (echo. > nul )
+(echo "%text%" | findstr /i /c:"/delline" >nul ) && (goto :delline) || (echo. > nul )
+(echo "%text%" | findstr /i /c:"/linebreak" >nul ) && (goto :linebreak) || (echo. > nul )
+(echo "%text%" | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo. > nul ) 
+(echo "%text%" | findstr /i /c:"/help" >nul ) && (goto :help) || (goto :addtext)
 
 :addtext
 echo %text% >> "%dir%%filename%" 2> nul
@@ -172,12 +173,12 @@ attrib -h "%dir%%filename%%undo%" > nul
 copy /y "%dir%%filename%" "%dir%%filename%%undo%" > nul 2>nul
 attrib +h "%dir%%filename%%undo%" > nul
 set /p text="Type:" 2> nul
-(echo %text% | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
-(echo %text% | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
-(echo %text% | findstr /i /c:"/del" >nul ) && (goto :del) || (echo. > nul )
-(echo %text% | findstr /i /c:"/linebreak" >nul ) && (goto :linebreak) || (echo. > nul )
-(echo %text% | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo. > nul ) 
-(echo %text% | findstr /i /c:"/help" >nul ) && (goto :help) || (echo. > nul)
+(echo "%text%" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
+(echo "%text%" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
+(echo "%text%" | findstr /i /c:"/del" >nul ) && (goto :del) || (echo. > nul )
+(echo "%text%" | findstr /i /c:"/linebreak" >nul ) && (goto :linebreak) || (echo. > nul )
+(echo "%text%" | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo. > nul ) 
+(echo "%text%" | findstr /i /c:"/help" >nul ) && (goto :help) || (echo. > nul)
 if %newline% equ 1 (
      goto :addnewtextline
 )
@@ -258,12 +259,15 @@ del /a h "%dir%%filename%%undo%" 2> nul
 cls
 
 set lcount=2000000000
+set /a fcount2+=100
+set /a fcount2+=2000000000
+set fcount=%fcount:~-9%
 
 :deltemp
 set /a lcount+=1
 attrib -h "%dir%%filename%line%lcount:~-9%"
 del "%dir%%filename%line%lcount:~-9%"
-if %lcount:~-9% geq %fcount2% goto :exit2
+if %lcount:~-9% geq %fcount2:~-9% goto :exit2
 goto :deltemp
 
 :exit2
