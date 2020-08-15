@@ -266,7 +266,7 @@ set fcount=%fcount:~-9%
 :deltemp
 set /a lcount+=1
 attrib -h "%dir%%filename%line%lcount:~-9%"
-del "%dir%%filename%line%lcount:~-9%"
+del "%dir%%filename%line%lcount:~-9%" 2> nul
 if %lcount:~-9% geq %fcount2:~-9% goto :exit2
 goto :deltemp
 
@@ -281,7 +281,6 @@ del "%dir%%filename%line%lcount:~-9%" 2> nul
 
 echo Thank you for using WinTXT!
 echo I hope it's not too terrible. hehe
-echo (PS: If you see "File Not Found - (yourfilename)line(number) don't fear!")
 pause
 choice /c yn /n /m "Do you want to edit another file? Y/N"
 if %errorlevel% equ 1 goto :start
