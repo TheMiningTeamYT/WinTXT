@@ -5,8 +5,6 @@ set newline=0
 set baseline=
 set arg1="%1"
 if "%arg1%"=="%baseline%" goto :beginning
-set baseline=""
-if "%arg1%"=="%baseline%" goto :beginning
 goto :fileopen
 
 :beginning
@@ -267,19 +265,19 @@ set fcount=%fcount:~-9%
 
 :deltemp
 set /a lcount+=1
-attrib -h "%dir%%filename%line%lcount:~-9%" 2> nul
-del "%dir%%filename%line%lcount:~-9%" 2> nul
+attrib -h "%dir%%filename%line%lcount:~-9%" > nul 2> nul
+del "%dir%%filename%line%lcount:~-9%" > nul 2> nul
 if %lcount:~-9% geq %fcount2:~-9% goto :exit2
 goto :deltemp
 
 :exit2
 set /a lcount+=1
-attrib -h "%dir%%filename%line%lcount:~-9%" 2> nul
-del "%dir%%filename%line%lcount:~-9%" 2> nul
+attrib -h "%dir%%filename%line%lcount:~-9%" > nul 2> nul
+del "%dir%%filename%line%lcount:~-9%" > nul 2> nul
 
 set /a lcount+=1
-attrib -h "%dir%%filename%line%lcount:~-9%" 2> nul
-del "%dir%%filename%line%lcount:~-9%" 2> nul
+attrib -h "%dir%%filename%line%lcount:~-9%" > nul 2> nul
+del "%dir%%filename%line%lcount:~-9%" > nul 2> nul
 
 echo Thank you for using WinTXT!
 echo I hope it's not too terrible. hehe
