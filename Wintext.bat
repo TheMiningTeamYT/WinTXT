@@ -7,6 +7,8 @@ set arg1="%1"
 if "%arg1%"=="%baseline%" goto :beginning
 set baseline=""
 if "%arg1%"=="%baseline%" goto :beginning
+set baseline="/?"
+if "%arg1%"=="%baseline%" goto :commandlinehelp
 goto :fileopen
 
 :beginning
@@ -67,6 +69,7 @@ if %deleted% equ 1 (
 )
 
 call :split
+del temp.txt
 set /p fcount2= < "%dir%%filename%fcount"
 del "%dir%%filename%fcount"
 
@@ -114,6 +117,7 @@ goto :rebuild
 
 :typefile
 cls
+echo %text% >> "%dir%%filename%" 2> nul
 type "%dir%%filename%"
 pause
 goto :textadd
@@ -128,6 +132,12 @@ goto :textadd
 set %dir%=
 echo. >> "%dir%%filename%"
 goto :textadd
+
+:commandlinehelp
+echo Syntax: wintext (file)
+echo It's not that hard!
+echo v2.12 (i guess) copyright 2020 Logan C.
+exit /b
 
 :undo
 if %undo% equ 1 set undo=11
