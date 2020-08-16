@@ -117,7 +117,6 @@ goto :rebuild
 
 :typefile
 cls
-echo %text% >> "%dir%%filename%" 2> nul
 type "%dir%%filename%"
 pause
 goto :textadd
@@ -136,7 +135,7 @@ goto :textadd
 :commandlinehelp
 echo Syntax: wintext (file)
 echo It's not that hard!
-echo v2.12 (i guess) copyright 2020 Logan C.
+echo v2.14 (i guess) copyright 2020 Logan C.
 exit /b
 
 :undo
@@ -268,7 +267,7 @@ echo /linebreak : Insert a line break.
 echo /typefile : Type the file normally instead of having the line markings.
 echo /editline (line number) : Edit that line
 echo /newline (line number) : Add that line
-echo /delline (line number) : Delete that line.
+echo | (command) : Add the output of that command.
 echo.
 echo And, if you have any bugs / need help, please email helpmewithstuff@protonmail.com .
 pause
