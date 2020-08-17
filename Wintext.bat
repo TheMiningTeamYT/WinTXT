@@ -20,12 +20,12 @@ pause
 :start
 cls
 echo What would you like to name your file (and be sure to add a file extension)?
-set /p filename="Enter Filename:"
+set /p filename="Enter Filename: "
 if exist %filename% goto :skip
 
 cls
 echo Where would you like to place your file? (Default is (your user directory)\WinTXTDocs)
-set /p dir="Enter Directory:"
+set /p dir="Enter Directory: "
 if not defined dir set dir=%userprofile%\NanoDocs\
 
 cls
@@ -74,6 +74,7 @@ set /p fcount2= < "%dir%%filename%fcount"
 del "%dir%%filename%fcount"
 
 set lcount=2000000000
+echo.
 
 :linebyline
 set /a lcount+=1
@@ -88,7 +89,7 @@ echo.
 attrib -h "%dir%%filename%%undo%" > nul
 copy /y "%dir%%filename%" "%dir%%filename%%undo%" > nul 2>nul
 attrib +h "%dir%%filename%%undo%" > nul
-set /p text="Type:" 2> nul
+set /p text="Type: " 2> nul
 (echo "%text%" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
 (echo "%text%" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
 (echo "%text%" | findstr /i /c:"/delfile" >nul ) && (goto :del) || (echo. > nul )
@@ -135,7 +136,7 @@ goto :textadd
 :commandlinehelp
 echo Syntax: wintext (file)
 echo It's not that hard!
-echo v2.14 (i guess) copyright 2020 Logan C.
+echo v2.16 (i guess) copyright 2020 Logan C.
 exit /b
 
 :undo
@@ -182,6 +183,7 @@ echo =====%dir%%filename%=====
 echo =====Current Line Is: %lcount1%=====
 if %newline% equ 1 goto :editline
 set /p Line= <"%dir%%filename%line%lcount:~-9%"
+echo.
 echo Line: %lcount1% : %Line%
 echo.
 
@@ -189,7 +191,7 @@ echo.
 attrib -h "%dir%%filename%%undo%" > nul
 copy /y "%dir%%filename%" "%dir%%filename%%undo%" > nul 2>nul
 attrib +h "%dir%%filename%%undo%" > nul
-set /p text="Type:" 2> nul
+set /p text="Type: " 2> nul
 (echo "%text%" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
 (echo "%text%" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
 (echo "%text%" | findstr /i /c:"/del" >nul ) && (goto :del) || (echo. > nul )
