@@ -2,6 +2,11 @@
 set undo=0
 set deleted=0
 set newline=0
+set typefile=0
+set typefileonce=0
+set splitfile=0
+set splitfileonce=0
+set input=0
 set baseline=
 set arg1="%1"
 if "%arg1%"=="%baseline%" goto :beginning
@@ -9,6 +14,20 @@ set baseline=""
 if "%arg1%"=="%baseline%" goto :beginning
 set baseline="/?"
 if "%arg1%"=="%baseline%" goto :commandlinehelp
+set baseline="/t"
+set arg2="%2"
+if "%arg2%"=="%baseline%" (
+    set input=1
+    set typefile=1
+)
+if "%arg1%"=="%baseline%" (
+    set input=2
+    set typefile=1
+)
+set baseline=
+if "%arg2%"=="%baseline%" goto :beginning
+set baseline=""
+if "%arg2%"=="%baseline%" goto :beginning
 goto :fileopen
 
 :beginning
@@ -63,18 +82,40 @@ if %undo% geq 11 set undo=1
 echo =====WinTXT -- A Command Line Editor For Windows=====
 echo =====Current Undo State is: %undo%=====
 echo =====%dir%%filename%=====
+echo.
 if %deleted% equ 1 (
     set deleted=0
     goto :edit
 )
-
+if %splitfile% equ 1 (
+    set textadd=0
+)
+if %typefile% equ 1 (
+    type "%dir%%filename%"
+    goto :edit
+)
+if %typefileonce% equ 1 (
+    type "%dir%%filename%"
+    set %typefileonce% equ 0
+    goto :edit
+)
+if %splitfileonce% equ 1 (
+    call :split
+    del temp.txt
+    set /p fcount2= < "%dir%%filename%fcount"
+    del "%dir%%filename%fcount"
+    set lcount=2000000000
+    echo.
+    set typefile=1
+    set splitfileonce=0
+    goto :linebyline
+    )
 call :split
 del temp.txt
 set /p fcount2= < "%dir%%filename%fcount"
 del "%dir%%filename%fcount"
 
 set lcount=2000000000
-echo.
 
 :linebyline
 set /a lcount+=1
@@ -98,6 +139,9 @@ set /p text="Type: " 2> nul
 (echo "%text%" | findstr /i /c:"/delline" >nul ) && (goto :delline) || (echo. > nul )
 (echo "%text%" | findstr /i /c:"/linebreak" >nul ) && (goto :linebreak) || (echo. > nul )
 (echo "%text%" | findstr /i /c:"/typefile" >nul ) && (goto :typefile) || (echo. > nul )
+(echo "%text%" | findstr /i /c:"/typefileonce" >nul ) && (goto :typefile) || (echo. > nul )
+(echo "%text%" | findstr /i /c:"/splitfileonce" >nul ) && (goto :splitfileonce) || (echo. > nul )
+(echo "%text%" | findstr /i /c:"/splitfile" >nul ) && (goto :splitfile) || (echo. > nul )
 (echo "%text%" | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo. > nul ) 
 (echo "%text%" | findstr /i /c:"/help" >nul ) && (goto :help) || (goto :addtext)
 
@@ -117,14 +161,23 @@ del /a h "%dir%%filename%line%lcount:~-9%"
 goto :rebuild
 
 :typefile
-cls
-type "%dir%%filename%"
-pause
+(echo "%text%" | findstr /i /c:"/typefileonce" >nul ) && (set typefileonce=1) || (echo. > nul )
+if %typefileonce% equ 1 goto :textadd
+set typefile=1
+set splitfile=0
 goto :textadd
 
 :fileopen
 set dir=
-set filename=%arg1%
+if %input% equ 0 (
+    set filename=%arg1%
+)
+if %input% equ 1 (
+    set filename=%arg1%
+)
+if %input% equ 2 (
+    set filename="%2"
+)
 echo. >> "%dir%%filename%"
 goto :textadd
 
@@ -134,10 +187,22 @@ echo. >> "%dir%%filename%"
 goto :textadd
 
 :commandlinehelp
-echo Syntax: wintext (file)
+echo Syntax: wintext (file) (flags)
+echo Flags:
+echo /t : Typefile : Use the faster typefile mode in wintext (prevents use of line editing)
 echo It's not that hard!
-echo v2.16 (i guess) copyright 2020 Logan C.
+echo v2.2 (i guess) copyright 2020 Logan C.
 exit /b
+
+:splitfile
+set typefile=0
+set splitfile=1
+goto :textadd
+
+:splitfileonce
+set splitfileonce=1
+set typefile=0
+goto :textadd
 
 :undo
 if %undo% equ 1 set undo=11
@@ -165,7 +230,6 @@ goto :textadd
 :line
 if %newline% equ 1 (
     set text=%text:/newline =%
-    set /a text-=1
     goto :linepart2
 )
 set text=%text:/editline =%
@@ -212,7 +276,10 @@ goto :rebuild
 
 :addnewtextline
 attrib -h "%dir%%filename%line%lcount:~-9%"
-echo %text% >> "%dir%%filename%line%lcount:~-9%"
+copy "%dir%%filename%line%lcount:~-9%" "%dir%%filename%line%lcount:~-9%temp" > nul
+echo %text% > "%dir%%filename%line%lcount:~-9%"
+type "%dir%%filename%line%lcount:~-9%temp" >> "%dir%%filename%line%lcount:~-9%"
+del "%dir%%filename%line%lcount:~-9%temp"
 attrib +h "%dir%%filename%line%lcount:~-9%"
 goto :rebuild
 
@@ -266,10 +333,13 @@ echo /help : This help screen.
 echo /redo : Redo the previous undone command.
 echo /del : Delete the current file. (can be undone with /undo.)
 echo /linebreak : Insert a line break.
-echo /typefile : Type the file normally instead of having the line markings.
+echo /typefile : Type the file normally instead of having the line markings. (can be enabled with the /t flag on startup)
+echo /typefileonce : Type the file normally once.
+echo /splitfile : Split the file (required for line editing) (enabled by default) (high performance impact)
+echo /splitfileonce : Split the file once.
 echo /editline (line number) : Edit that line
 echo /newline (line number) : Add that line
-echo | (command) : Add the output of that command.
+echo ^| (command) : Add the output of that command.
 echo.
 echo And, if you have any bugs / need help, please email helpmewithstuff@protonmail.com .
 pause
@@ -314,5 +384,14 @@ echo Thank you for using WinTXT!
 echo I hope it's not too terrible. hehe
 pause
 choice /c yn /n /m "Do you want to edit another file? Y/N"
-if %errorlevel% equ 1 goto :start
+if %errorlevel% equ 1 (
+    set undo=0
+    set deleted=0
+    set newline=0
+    set typefile=0
+    set typefileonce=0
+    set splitfile=0
+    set splitfileonce=0
+    goto :start
+)
 if %errorlevel% equ 2 exit /b
