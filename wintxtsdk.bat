@@ -2,7 +2,7 @@
 cls
 set NormalName=WinTXTSDK
 set lowercasename=wintxtsdk
-color 5B
+color 17
 
 echo This up here is the customizable *^*
 
