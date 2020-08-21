@@ -20,7 +20,7 @@ You just type in text line by line. However, as people more talented then me joi
 This text editor is great if you have 13KB left on your disk, or maybe if you need to work off a 64MB USB flash drive from 2001. Otherwise, as of now it's a bottlenecked to the point of near uselessness text editor made in 1 day by someone who isn't great at batch scripts.
 
 
-#5 : Undocumented Features
+# 5 : Undocumented Features
 With the latest v2.3 update, there are new commands.
 WARNING: THESE AREN'T MEANT FOR USERS, THESE ARE MEANT FOR PROGRAMS USING WINTXT!
 /h - The -? command with the ability to modify the program name
