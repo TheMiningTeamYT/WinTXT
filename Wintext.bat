@@ -23,6 +23,9 @@ set arg4="%4"
 (echo "%arg1%" | findstr /i /c:"-t" >nul ) && (goto :targ1) || (echo. > nul )
 (echo "%arg2%" | findstr /i /c:"-t" >nul ) && (goto :targ2) || (echo. > nul)
 
+echo 1
+pause
+
 set baseline=""
 if "%arg1%"=="%baseline%" goto :beginning
 set input=1
@@ -33,6 +36,24 @@ set typefile=1
 if "%arg2%"=="%baseline%" goto :beginning
 set input=2
 goto :fileopen
+
+:2targ1
+set typefile=1
+goto :beginning
+
+:3targ1
+set typefile=1
+set input=2
+goto :fileopen
+
+:3targ2
+set typefile=1
+set input=1
+goto :fileopen
+
+:2targ1
+set typefile=1
+goto :beginning
 
 :targ2
 set typefile=1
@@ -66,7 +87,9 @@ goto :beginning
 set WinTXT=%arg3%
 for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
 for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
-(echo "%arg1%" | findstr /i /c:"-t" >nul ) && (goto :targ1) || (echo. > nul )
+(echo "%arg1%" | findstr /i /c:"-t" >nul ) && (goto :2targ1) || (echo. > nul )
+set baseline=""
+if "%arg1%"=="%baseline%" goto :beginning
 set input=1
 goto :fileopen
 
@@ -74,8 +97,11 @@ goto :fileopen
 set WinTXT=%arg4%
 for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
 for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
-(echo "%arg1%" | findstr /i /c:"-t" >nul ) && (goto :targ1) || (echo. > nul )
-(echo "%arg2%" | findstr /i /c:"-t" >nul ) && (goto :targ2) || (echo. > nul )
+(echo "%arg1%" | findstr /i /c:"-t" >nul ) && (goto :3targ1) || (echo. > nul )
+(echo "%arg2%" | findstr /i /c:"-t" >nul ) && (goto :3targ2) || (echo. > nul )
+set baseline=""
+if "%arg1%"=="%baseline%" goto :beginning
+if "%arg2%"=="%baseline%" goto :beginning
 set input=1
 goto :fileopen
 
@@ -121,6 +147,7 @@ SET /a fcount+=1
 MOVE /y "temp.txt$$" "%dir%%filename%line%fcount:~-9%" >NUL 2>nul
 attrib +h "%dir%%filename%line%fcount:~-9%" >NUL 2>nul
 echo %fcount:~-9% > "%dir%%filename%fcount"
+
 GOTO :EOF
 
 :textadd

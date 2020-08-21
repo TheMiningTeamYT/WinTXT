@@ -1,8 +1,10 @@
 @echo off
 cls
-set NormalName=Edlin
-set lowercasename=edlin
-color 17
+set NormalName=WinTXTSDK
+set lowercasename=wintxtsdk
+color 5B
+
+echo This up here is the customizable *^*
 
 set arg1=%1
 set arg2=%2
