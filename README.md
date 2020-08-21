@@ -17,7 +17,7 @@ When you get in, to use commands you type these at the "Type" Prompt:
 This text editor has no creature comforts. Fancy formatting? Nope. Search and replace? Forget about it. Even just searching? Nada. 
 You just type in text line by line. However, as people more talented then me join and contribute to WinTXT, hopefully some of these things will be added in.
 # 4: Conclusion
-This text editor is great if you have 10KB left on your disk. Otherwise, as of now it's a bottlenecked to the point of near uselessness text editor made in 1 day by someone who isn't great at batch scripts.
+This text editor is great if you have 13KB left on your disk, or maybe if you need to work off a 64MB USB flash drive from 2001. Otherwise, as of now it's a bottlenecked to the point of near uselessness text editor made in 1 day by someone who isn't great at batch scripts.
 
 
 #5 : Undocumented Features
