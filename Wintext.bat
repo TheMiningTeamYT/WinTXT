@@ -130,7 +130,12 @@ cls
 if %undo% geq 11 set undo=1
 echo =====%WinTXT% -- A Command Line Editor For Windows=====
 echo =====Current Undo State is: %undo%=====
-echo =====%dir%%filename%=====
+set display=%dir%%filename%
+for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
+for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
+for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
+for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
+echo =====%display%=====
 echo.
 if %deleted% equ 1 (
     set deleted=0
@@ -243,7 +248,7 @@ echo Flags:
 echo -t : Typefile : Use the faster typefile mode in %wintext% (prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
-echo v2.3 (i guess) copyright 2020 Logan C.
+echo v2.4 (i guess) copyright 2020 Logan C.
 exit /b
 
 :splitfile
@@ -295,6 +300,11 @@ cls
 if %undo% geq 11 set undo=1
 echo =====%WinTXT% -- A Command Line Editor For Windows=====
 echo =====Current Undo State is: %undo%=====
+set display=%dir%%filename%
+for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
+for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
+for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
+for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
 echo =====%dir%%filename%=====
 echo =====Current Line Is: %lcount1%=====
 if %newline% equ 1 goto :editline
