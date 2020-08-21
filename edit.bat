@@ -1,15 +1,22 @@
 @echo off
+cls
 color 17
-set baseline=/?
-if "%1"=="%baseline%" (
-    color
-    echo Syntax: edit (file) (flags)
-    echo Flags:
-    echo /t : Typefile : Use the faster typefile mode in edit (prevents use of line editing)
-    echo It's not that hard!
-    echo v2.2 (i guess) copyright 2020 Logan C.
-    exit /b
-)
-call wintext %1 %2
+set arg1="%1"
+set arg2="%2"
+set arg1="%1"
+set arg2="%2"
+set arg3="%3"
+(echo "%arg1%" | findstr /i /c:"-?" >nul ) && (goto :helparg1) || (echo. > nul)
+(echo "%arg2%" | findstr /i /c:"-?" >nul ) && (goto :helparg1) || (echo. > nul)
+(echo "%arg3%" | findstr /i /c:"-?" >nul ) && (goto :helparg1) || (echo. > nul)
+call wintext "%arg1%" "%arg2%" /n Edit
 color
 cls
+exit /b
+
+:helparg1
+cls
+set arg1=/h edit
+color
+call wintext "%arg1%"
+exit /b
