@@ -331,7 +331,7 @@ for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
-echo =====%dir%%filename%=====
+echo =====%display%=====
 echo =====Current Line Is: %lcount1%=====
 if %newline% equ 1 goto :editline
 set /p Line= <"%dir%%filename%line%lcount:~-9%"
