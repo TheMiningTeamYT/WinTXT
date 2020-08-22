@@ -210,6 +210,7 @@ echo.
 attrib -h "%dir%%filename%%undo%" > nul
 copy /y "%dir%%filename%" "%dir%%filename%%undo%" > nul 2>nul
 attrib +h "%dir%%filename%%undo%" > nul
+set text= 
 set /p text="Type: " 2> nul
 set baseline= 
 if "%text%"=="%baseline%" set text=/linebreak
@@ -345,6 +346,7 @@ echo.
 attrib -h "%dir%%filename%%undo%" > nul
 copy /y "%dir%%filename%" "%dir%%filename%%undo%" > nul 2>nul
 attrib +h "%dir%%filename%%undo%" > nul
+set text= 
 set /p text="Type: " 2> nul
 set baseline= 
 if "%text%"=="%baseline%" set text=/linebreak
