@@ -21,10 +21,7 @@ set arg4="%4"
 (echo "%arg2%" | findstr /i /c:"/n" >nul ) && (goto :namearg2) || (echo. > nul)
 (echo "%arg3%" | findstr /i /c:"/n" >nul ) && (goto :namearg3) || (echo. > nul)
 (echo "%arg1%" | findstr /i /c:"-t" >nul ) && (goto :targ1) || (echo. > nul )
-(echo "%arg2%" | findstr /i /c:"-t" >nul ) && (goto :targ2) || (echo. > nul)
-
-echo 1
-pause
+(echo "%arg2%" | findstr /i /c:"-t" >nul ) && (goto :targ2) || (echo. > nul )
 
 set baseline=""
 if "%arg1%"=="%baseline%" goto :beginning
@@ -121,6 +118,8 @@ cls
 echo Where would you like to place your file? (Default is (your user directory)\%WinTXT%Docs)
 set /p dir="Enter Directory: "
 if not defined dir set dir=%userprofile%\%WinTXT%Docs\
+set dirend=%dir:~-1%
+if not "%dirend%"=="\" set dir=%dir%\
 
 cls
 if not exist "%dir%" mkdir "%dir%
