@@ -213,6 +213,8 @@ attrib +h "%dir%%filename%%undo%" > nul
 set /p text="Type: " 2> nul
 set baseline= 
 if "%text%"=="%baseline%" set text=/linebreak
+set baseline=
+if "%text%"=="%baseline%" set text=/linebreak
 (echo "%text%" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
 (echo "%text%" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
 (echo "%text%" | findstr /i /c:"/delfile" >nul ) && (goto :del) || (echo. > nul )
@@ -274,7 +276,7 @@ echo Flags:
 echo -t : Typefile : Use the faster typefile mode in %wintext% (prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
-echo v2.4 (i guess) copyright 2020 Logan C.
+echo v2.6 (i guess) copyright 2020 Logan C.
 exit /b
 
 :splitfile
@@ -344,6 +346,10 @@ attrib -h "%dir%%filename%%undo%" > nul
 copy /y "%dir%%filename%" "%dir%%filename%%undo%" > nul 2>nul
 attrib +h "%dir%%filename%%undo%" > nul
 set /p text="Type: " 2> nul
+set baseline= 
+if "%text%"=="%baseline%" set text=/linebreak
+set baseline=
+if "%text%"=="%baseline%" set text=/linebreak
 (echo "%text%" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
 (echo "%text%" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
 (echo "%text%" | findstr /i /c:"/del" >nul ) && (goto :del) || (echo. > nul )
