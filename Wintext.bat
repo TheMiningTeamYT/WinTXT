@@ -282,7 +282,7 @@ echo Flags:
 echo -t : Typefile : Use the faster typefile mode in %wintext% (prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
-echo v2.4 (i guess) copyright 2020 Logan C.
+echo v2.8 (i guess) copyright 2020 Logan C.
 exit /b
 
 :splitfile
@@ -441,7 +441,6 @@ echo /splitfile : Split the file (required for line editing) (enabled by default
 echo /splitfileonce : Split the file once.
 echo /editline (line number) : Edit that line
 echo /newline (line number) : Add that line
-echo ^| (command) : Add the output of that command.
 echo.
 echo And, if you have any bugs / need help, please email helpmewithstuff@protonmail.com .
 pause
