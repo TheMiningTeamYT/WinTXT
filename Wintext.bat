@@ -1,4 +1,5 @@
 @echo off
+setlocal ENABLEDELAYEDEXPANSION
 set undo=0
 set deleted=0
 set newline=0
@@ -6,6 +7,8 @@ set typefile=0
 set typefileonce=0
 set splitfile=0
 set splitfileonce=0
+set dir=
+set filename=
 set wintext=wintext
 set WinTXT=WinTXT
 set input=0
@@ -70,6 +73,8 @@ goto :commandlinehelp
 
 :help2arg1
 set wintext=%arg1:/h =%
+for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
+for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
 for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
 for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
 goto :commandlinehelp
@@ -199,7 +204,7 @@ set lcount=2000000000
 
 :linebyline
 set /a lcount+=1
-set /p Line= <"%dir%%filename%line%lcount:~-9%"
+set /p line=<"%dir%%filename%line%lcount:~-9%"
 set /a lcount1=%lcount%-2000000000
 echo Line: %lcount1% : %Line%
 if %lcount:~-9% geq %fcount2% goto :edit
@@ -207,31 +212,29 @@ goto :linebyline
 
 :edit
 echo.
+set text=
 attrib -h "%dir%%filename%%undo%" > nul
 copy /y "%dir%%filename%" "%dir%%filename%%undo%" > nul 2>nul
 attrib +h "%dir%%filename%%undo%" > nul
-set text= 
 set /p text="Type: " 2> nul
 set baseline= 
-if "%text%"=="%baseline%" set text=/linebreak
-set baseline=
-if "%text%"=="%baseline%" set text=/linebreak
-(echo "%text%" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
-(echo "%text%" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
-(echo "%text%" | findstr /i /c:"/delfile" >nul ) && (goto :del) || (echo. > nul )
-(echo "%text%" | findstr /i /c:"/editline" >nul ) && (goto :line) || (echo. > nul )
-(echo "%text%" | findstr /i /c:"/newline" >nul ) && (goto :newline) || (echo. > nul )
-(echo "%text%" | findstr /i /c:"/delline" >nul ) && (goto :delline) || (echo. > nul )
-(echo "%text%" | findstr /i /c:"/linebreak" >nul ) && (goto :linebreak) || (echo. > nul )
-(echo "%text%" | findstr /i /c:"/typefile" >nul ) && (goto :typefile) || (echo. > nul )
-(echo "%text%" | findstr /i /c:"/typefileonce" >nul ) && (goto :typefile) || (echo. > nul )
-(echo "%text%" | findstr /i /c:"/splitfileonce" >nul ) && (goto :splitfileonce) || (echo. > nul )
-(echo "%text%" | findstr /i /c:"/splitfile" >nul ) && (goto :splitfile) || (echo. > nul )
-(echo "%text%" | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo. > nul ) 
-(echo "%text%" | findstr /i /c:"/help" >nul ) && (goto :help) || (goto :addtext)
+if "!text!"=="%baseline%" set text=/linebreak
+(echo "!text!" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/delfile" >nul ) && (goto :del) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/editline" >nul ) && (goto :line) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/newline" >nul ) && (goto :newline) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/delline" >nul ) && (goto :delline) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/linebreak" >nul ) && (goto :linebreak) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/typefile" >nul ) && (goto :typefile) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/typefileonce" >nul ) && (goto :typefile) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/splitfileonce" >nul ) && (goto :splitfileonce) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/splitfile" >nul ) && (goto :splitfile) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo. > nul ) 
+(echo "!text!" | findstr /i /c:"/help" >nul ) && (goto :help) || (goto :addtext)
 
 :addtext
-echo %text% >> "%dir%%filename%" 2> nul
+echo !text! >> "%dir%%filename%" 2> nul
 goto :textadd
 
 :newline
@@ -241,12 +244,12 @@ goto :line
 :delline
 set text=%text:/delline =%
 set lcount=2000000000
-set /a lcount+=%text%
+set /a lcount+=!text!
 del /a h "%dir%%filename%line%lcount:~-9%"
 goto :rebuild
 
 :typefile
-(echo "%text%" | findstr /i /c:"/typefileonce" >nul ) && (set typefileonce=1) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/typefileonce" >nul ) && (set typefileonce=1) || (echo. > nul )
 if %typefileonce% equ 1 goto :textadd
 set typefile=1
 set splitfile=0
@@ -277,7 +280,7 @@ echo Flags:
 echo -t : Typefile : Use the faster typefile mode in %wintext% (prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
-echo v2.6 (i guess) copyright 2020 Logan C.
+echo v2.4 (i guess) copyright 2020 Logan C.
 exit /b
 
 :splitfile
@@ -322,7 +325,7 @@ set text=%text:/editline =%
 
 :linepart2
 set lcount=2000000000
-set /a lcount+=%text%
+set /a lcount+=!text!
 set /a lcount1=%lcount%-2000000000
 set /a undo+=1
 cls
@@ -334,7 +337,7 @@ for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
-echo =====%display%=====
+echo =====%dir%%filename%=====
 echo =====Current Line Is: %lcount1%=====
 if %newline% equ 1 goto :editline
 set /p Line= <"%dir%%filename%line%lcount:~-9%"
@@ -346,19 +349,16 @@ echo.
 attrib -h "%dir%%filename%%undo%" > nul
 copy /y "%dir%%filename%" "%dir%%filename%%undo%" > nul 2>nul
 attrib +h "%dir%%filename%%undo%" > nul
-set text= 
 set /p text="Type: " 2> nul
 set baseline= 
-if "%text%"=="%baseline%" set text=/linebreak
-set baseline=
-if "%text%"=="%baseline%" set text=/linebreak
-(echo "%text%" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
-(echo "%text%" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
-(echo "%text%" | findstr /i /c:"/del" >nul ) && (goto :del) || (echo. > nul )
-(echo "%text%" | findstr /i /c:"/linebreak" >nul ) && (goto :linelinebreak) || (echo. > nul )
-(echo "%text%" | findstr /i /c:"/typefile" >nul ) && (goto :typefile) || (echo. > nul )
-(echo "%text%" | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo. > nul ) 
-(echo "%text%" | findstr /i /c:"/help" >nul ) && (goto :help) || (echo. > nul)
+if "!text!"=="%baseline%" set text=/linebreak
+(echo "!text!" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/del" >nul ) && (goto :del) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/linebreak" >nul ) && (goto :linelinebreak) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/typefile" >nul ) && (goto :typefile) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo. > nul ) 
+(echo "!text!" | findstr /i /c:"/help" >nul ) && (goto :help) || (echo. > nul)
 if %newline% equ 1 (
      goto :addnewtextline
 )
@@ -366,14 +366,14 @@ goto :addtextline
 
 :addtextline
 attrib -h "%dir%%filename%line%lcount:~-9%"
-echo %text% > "%dir%%filename%line%lcount:~-9%"
+echo !text! > "%dir%%filename%line%lcount:~-9%"
 attrib +h "%dir%%filename%line%lcount:~-9%"
 goto :rebuild
 
 :addnewtextline
 attrib -h "%dir%%filename%line%lcount:~-9%"
 copy "%dir%%filename%line%lcount:~-9%" "%dir%%filename%line%lcount:~-9%temp" > nul
-echo %text% > "%dir%%filename%line%lcount:~-9%"
+echo !text! > "%dir%%filename%line%lcount:~-9%"
 type "%dir%%filename%line%lcount:~-9%temp" >> "%dir%%filename%line%lcount:~-9%"
 del "%dir%%filename%line%lcount:~-9%temp"
 attrib +h "%dir%%filename%line%lcount:~-9%"
@@ -430,7 +430,7 @@ echo /exit : Exit %WinTXT%.
 echo /undo : Undo the previous command.
 echo /help : This help screen.
 echo /redo : Redo the previous undone command.
-echo /del : Delete the current file. (can be undone with /undo.)
+echo /delfile : Delete the current file. (can be undone with /undo.)
 echo /linebreak : Insert a line break.
 echo /typefile : Type the file normally instead of having the line markings. (can be enabled with the /t flag on startup)
 echo /typefileonce : Type the file normally once.
@@ -487,10 +487,10 @@ if %errorlevel% equ 1 (
     set undo=0
     set deleted=0
     set newline=0
-    set typefile=0
     set typefileonce=0
-    set splitfile=0
     set splitfileonce=0
+    set dir=
+    set filename=
     goto :start
 )
 if %errorlevel% equ 2 exit /b
