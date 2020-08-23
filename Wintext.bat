@@ -133,7 +133,7 @@ echo. >> "%dir%%filename%"
 goto :textadd
 
 :SPLIT
-SETLOCAL
+SETLOCAL DISABLEDELAYEDEXPANSION
 copy "%dir%%filename%" temp.txt > nul
 SET /a fcount=1999999999
 SET /a llimit=1
@@ -186,6 +186,7 @@ if %typefileonce% equ 1 (
 )
 if %splitfileonce% equ 1 (
     call :split
+    setlocal ENABLEDELAYEDEXPANSION
     del temp.txt
     set /p fcount2= < "%dir%%filename%fcount"
     del "%dir%%filename%fcount"
@@ -196,6 +197,7 @@ if %splitfileonce% equ 1 (
     goto :linebyline
     )
 call :split
+setlocal ENABLEDELAYEDEXPANSION
 del temp.txt
 set /p fcount2= < "%dir%%filename%fcount"
 del "%dir%%filename%fcount"
@@ -212,7 +214,7 @@ goto :linebyline
 
 :edit
 echo.
-set text=
+set text= 
 attrib -h "%dir%%filename%%undo%" > nul
 copy /y "%dir%%filename%" "%dir%%filename%%undo%" > nul 2>nul
 attrib +h "%dir%%filename%%undo%" > nul
@@ -325,7 +327,7 @@ set text=%text:/editline =%
 
 :linepart2
 set lcount=2000000000
-set /a lcount+=1
+set /a lcount+=!text!
 set /a lcount1=%lcount%-2000000000
 set /a undo+=1
 cls
@@ -346,6 +348,7 @@ echo Line: %lcount1% : !line!
 echo.
 
 :editline
+set text= 
 attrib -h "%dir%%filename%%undo%" > nul
 copy /y "%dir%%filename%" "%dir%%filename%%undo%" > nul 2>nul
 attrib +h "%dir%%filename%%undo%" > nul
