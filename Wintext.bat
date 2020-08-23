@@ -206,7 +206,7 @@ set lcount=2000000000
 set /a lcount+=1
 set /p line=<"%dir%%filename%line%lcount:~-9%"
 set /a lcount1=%lcount%-2000000000
-echo Line: %lcount1% : %Line%
+echo Line: %lcount1% : !line!
 if %lcount:~-9% geq %fcount2% goto :edit
 goto :linebyline
 
@@ -325,7 +325,7 @@ set text=%text:/editline =%
 
 :linepart2
 set lcount=2000000000
-set /a lcount+=!text!
+set /a lcount+=1
 set /a lcount1=%lcount%-2000000000
 set /a undo+=1
 cls
@@ -342,7 +342,7 @@ echo =====Current Line Is: %lcount1%=====
 if %newline% equ 1 goto :editline
 set /p Line= <"%dir%%filename%line%lcount:~-9%"
 echo.
-echo Line: %lcount1% : %Line%
+echo Line: %lcount1% : !line!
 echo.
 
 :editline
