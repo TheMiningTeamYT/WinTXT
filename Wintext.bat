@@ -73,22 +73,22 @@ goto :commandlinehelp
 
 :help2arg1
 set wintext=%arg1:/h =%
-for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
-for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
-for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
-for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
+for /f "useback tokens=*" %%a in ('!wintext!') do set wintext=%%~a
+for /f "useback tokens=*" %%a in ('!wintext!') do set wintext=%%~a
+for /f "useback tokens=*" %%a in ('!wintext!') do set wintext=%%~a
+for /f "useback tokens=*" %%a in ('!wintext!') do set wintext=%%~a
 goto :commandlinehelp
 
 :namearg1
-set WinTXT=%arg2%
-for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
-for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
+set WinTXT=!arg2!
+for /f "useback tokens=*" %%a in ('!wintxt!') do set WinTXT=%%~a
+for /f "useback tokens=*" %%a in ('!wintxt!') do set WinTXT=%%~a
 goto :beginning
 
 :namearg2
-set WinTXT=%arg3%
-for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
-for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
+set WinTXT=!arg3!
+for /f "useback tokens=*" %%a in ('!wintxt!') do set WinTXT=%%~a
+for /f "useback tokens=*" %%a in ('!wintxt!') do set WinTXT=%%~a
 (echo "%arg1%" | findstr /i /c:"-t" >nul ) && (goto :2targ1) || (echo. > nul )
 set baseline=""
 if "%arg1%"=="%baseline%" goto :beginning
@@ -96,9 +96,9 @@ set input=1
 goto :fileopen
 
 :namearg3
-set WinTXT=%arg4%
-for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
-for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
+set WinTXT=!arg4!
+for /f "useback tokens=*" %%a in ('!wintxt!') do set WinTXT=%%~a
+for /f "useback tokens=*" %%a in ('!wintxt!') do set WinTXT=%%~a
 (echo "%arg1%" | findstr /i /c:"-t" >nul ) && (goto :3targ1) || (echo. > nul )
 (echo "%arg2%" | findstr /i /c:"-t" >nul ) && (goto :3targ2) || (echo. > nul )
 set baseline=""
@@ -109,7 +109,7 @@ goto :fileopen
 
 :beginning
 cls
-echo Welcome to %WinTXT%, A Command Line Editor For Windows!!
+echo Welcome to !wintxt!, A Command Line Editor For Windows!!
 echo This program was made by Logan C.
 pause
 
@@ -120,9 +120,9 @@ set /p filename="Enter Filename: "
 if exist %filename% goto :skip
 
 cls
-echo Where would you like to place your file? (Default is (your user directory)\%WinTXT%Docs)
+echo Where would you like to place your file? (Default is (your user directory)\!wintxt!Docs)
 set /p dir="Enter Directory: "
-if not defined dir set dir=%userprofile%\%WinTXT%Docs\
+if not defined dir set dir=%userprofile%\!wintxt!Docs\
 set dirend=%dir:~-1%
 if not "%dirend%"=="\" set dir=%dir%\
 
@@ -134,13 +134,14 @@ goto :textadd
 
 :SPLIT
 SETLOCAL DISABLEDELAYEDEXPANSION
-copy "%dir%%filename%" temp.txt > nul
+if not exist C:\DocTemp\ mkdir C:\DocTemp\
+copy "%dir%%filename%" C:\DocTemp\temp.txt > nul
 SET /a fcount=1999999999
 SET /a llimit=1
 SET /a lcount=%llimit%
-FOR /f "usebackqdelims=" %%a IN (temp.txt) DO (
+FOR /f "usebackqdelims=" %%a IN (C:\DocTemp\temp.txt) DO (
  CALL :select
- >>"temp.txt$$" ECHO(%%a
+ >>"C:\DocTemp\temp.txt$$" ECHO(%%a
 )
 SET /a lcount=%llimit%
 :select
@@ -148,7 +149,7 @@ SET /a lcount+=1
 IF %lcount% lss %llimit% GOTO :EOF >NUL 2>nul
 SET /a lcount=0
 SET /a fcount+=1
-MOVE /y "temp.txt$$" "%dir%%filename%line%fcount:~-9%" >NUL 2>nul
+MOVE /y "C:\DocTemp\temp.txt$$" "%dir%%filename%line%fcount:~-9%" >NUL 2>nul
 attrib +h "%dir%%filename%line%fcount:~-9%" >NUL 2>nul
 echo %fcount:~-9% > "%dir%%filename%fcount"
 
@@ -159,7 +160,7 @@ set newline=0
 set /a undo+=1
 cls
 if %undo% geq 11 set undo=1
-echo =====%WinTXT% -- A Command Line Editor For Windows=====
+echo =====!wintxt! -- A Command Line Editor For Windows=====
 echo =====Current Undo State is: %undo%=====
 set display=%dir%%filename%
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
@@ -187,7 +188,8 @@ if %typefileonce% equ 1 (
 if %splitfileonce% equ 1 (
     call :split
     setlocal ENABLEDELAYEDEXPANSION
-    del temp.txt
+    del C:\DocTemp\temp.txt
+    rmdir C:\DocTemp\
     set /p fcount2= < "%dir%%filename%fcount"
     del "%dir%%filename%fcount"
     set lcount=2000000000
@@ -198,7 +200,8 @@ if %splitfileonce% equ 1 (
     )
 call :split
 setlocal ENABLEDELAYEDEXPANSION
-del temp.txt
+del C:\DocTemp\temp.txt
+rmdir C:\DocTemp\
 set /p fcount2= < "%dir%%filename%fcount"
 del "%dir%%filename%fcount"
 
@@ -277,12 +280,12 @@ echo. >> "%dir%%filename%"
 goto :textadd
 
 :commandlinehelp
-echo Syntax: %wintext% (file) (flags)
+echo Syntax: !wintext! (file) (flags)
 echo Flags:
-echo -t : Typefile : Use the faster typefile mode in %wintext% (prevents use of line editing)
+echo -t : Typefile : Use the faster typefile mode in !wintext! (prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
-echo v2.8 (i guess) copyright 2020 Logan C.
+echo v2.83 (i guess) copyright 2020 Logan C.
 exit /b
 
 :splitfile
@@ -332,7 +335,7 @@ set /a lcount1=%lcount%-2000000000
 set /a undo+=1
 cls
 if %undo% geq 11 set undo=1
-echo =====%WinTXT% -- A Command Line Editor For Windows=====
+echo =====!wintxt! -- A Command Line Editor For Windows=====
 echo =====Current Undo State is: %undo%=====
 set display=%dir%%filename%
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
@@ -422,20 +425,20 @@ goto :undoclear1
 :help
 cls
 
-echo Welcome to the help for %WinTXT%, A Command Line Editor For Windows!
+echo Welcome to the help for !wintxt!, A Command Line Editor For Windows!
 echo.
 echo #1: How to enter commands:
 echo At the "Type:" prompt, type the one of the commands shown below:
 echo.
 echo #2: Commands:
 echo.
-echo /exit : Exit %WinTXT%.
+echo /exit : Exit !wintxt!.
 echo /undo : Undo the previous command.
 echo /help : This help screen.
 echo /redo : Redo the previous undone command.
 echo /delfile : Delete the current file. (can be undone with /undo.)
 echo /linebreak : Insert a line break.
-echo /typefile : Type the file normally instead of having the line markings. (can be enabled with the /t flag on startup)
+echo /typefile : Type the file normally instead of having the line markings. (can be enabled with the -t flag on startup)
 echo /typefileonce : Type the file normally once.
 echo /splitfile : Split the file (required for line editing) (enabled by default) (high performance impact)
 echo /splitfileonce : Split the file once.
@@ -446,7 +449,7 @@ echo And, if you have any bugs / need help, please email helpmewithstuff@protonm
 pause
 
 cls
-echo Thank you for using %WinTXT%.
+echo Thank you for using !wintxt!.
 pause
 goto :textadd
 
@@ -481,7 +484,7 @@ set /a lcount+=1
 attrib -h "%dir%%filename%line%lcount:~-9%" > nul 2> nul
 del "%dir%%filename%line%lcount:~-9%" > nul 2> nul
 
-echo Thank you for using %WinTXT%!
+echo Thank you for using !wintxt!!
 echo I hope it's not too terrible. hehe
 pause
 choice /c yn /n /m "Do you want to edit another file? Y/N"
