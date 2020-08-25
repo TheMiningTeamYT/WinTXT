@@ -227,6 +227,10 @@ attrib +h "%dir%%filename%%undo%" > nul
 set /p text="Type: " 2> nul
 set baseline= 
 if "!text!"=="%baseline%" set text=/linebreak
+set baseline=/?
+if "!text!"=="%baseline%" set text=/help
+set baseline=on
+if "!text!"=="%baseline%" set text="on"
 (echo "!text!" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/delfile" >nul ) && (goto :del) || (echo. > nul )
@@ -288,7 +292,7 @@ echo Flags:
 echo -t : Typefile : Use the faster typefile mode in !wintext! (prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
-echo v2.84 (i guess) copyright 2020 Logan C.
+echo v2.86 (i guess) copyright 2020 Logan C.
 exit /b
 
 :splitfile
