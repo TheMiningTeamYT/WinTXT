@@ -292,7 +292,7 @@ echo Flags:
 echo -t : Typefile : Use the faster typefile mode in !wintext! (prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
-echo v2.85 (i guess) copyright 2020 Logan C.
+echo v2.86 (i guess) copyright 2020 Logan C.
 exit /b
 
 :splitfile
