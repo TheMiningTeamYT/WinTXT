@@ -231,6 +231,8 @@ set baseline=/?
 if "!text!"=="%baseline%" set text=/help
 set baseline=on
 if "!text!"=="%baseline%" set text="on"
+set baseline=off
+if "!text!"=="%baseline%" set text="off"
 (echo "!text!" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/delfile" >nul ) && (goto :del) || (echo. > nul )
@@ -369,6 +371,8 @@ set baseline=/?
 if "!text!"=="%baseline%" set text=/help
 set baseline=on
 if "!text!"=="%baseline%" set text="on"
+set baseline=off
+if "!text!"=="%baseline%" set text="off"
 (echo "!text!" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/del" >nul ) && (goto :del) || (echo. > nul )
