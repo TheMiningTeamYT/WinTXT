@@ -83,12 +83,14 @@ goto :commandlinehelp
 set WinTXT=!arg2!
 for /f "useback tokens=*" %%a in ('!wintxt!') do set WinTXT=%%~a
 for /f "useback tokens=*" %%a in ('!wintxt!') do set WinTXT=%%~a
+title %WinTXT%
 goto :beginning
 
 :namearg2
 set WinTXT=!arg3!
 for /f "useback tokens=*" %%a in ('!wintxt!') do set WinTXT=%%~a
 for /f "useback tokens=*" %%a in ('!wintxt!') do set WinTXT=%%~a
+title %WinTXT%
 (echo "%arg1%" | findstr /i /c:"-t" >nul ) && (goto :2targ1) || (echo. > nul )
 set baseline=""
 if "%arg1%"=="%baseline%" goto :beginning
@@ -99,6 +101,7 @@ goto :fileopen
 set WinTXT=!arg4!
 for /f "useback tokens=*" %%a in ('!wintxt!') do set WinTXT=%%~a
 for /f "useback tokens=*" %%a in ('!wintxt!') do set WinTXT=%%~a
+title %WinTXT% 
 (echo "%arg1%" | findstr /i /c:"-t" >nul ) && (goto :3targ1) || (echo. > nul )
 (echo "%arg2%" | findstr /i /c:"-t" >nul ) && (goto :3targ2) || (echo. > nul )
 set baseline=""
@@ -285,7 +288,7 @@ echo Flags:
 echo -t : Typefile : Use the faster typefile mode in !wintext! (prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
-echo v2.83 (i guess) copyright 2020 Logan C.
+echo v2.84 (i guess) copyright 2020 Logan C.
 exit /b
 
 :splitfile
@@ -498,4 +501,7 @@ if %errorlevel% equ 1 (
     set filename=
     goto :start
 )
-if %errorlevel% equ 2 exit /b
+if %errorlevel% equ 2 (
+    title cmd
+    exit /b
+)
