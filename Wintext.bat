@@ -229,6 +229,8 @@ set baseline=
 if "!text!"=="%baseline%" set text=/linebreak
 set baseline=/?
 if "!text!"=="%baseline%" set text=/help
+set baseline=on
+if "!text!"=="%baseline%" set text="on"
 (echo "!text!" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/delfile" >nul ) && (goto :del) || (echo. > nul )
