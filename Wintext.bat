@@ -365,6 +365,10 @@ attrib +h "%dir%%filename%%undo%" > nul
 set /p text="Type: " 2> nul
 set baseline= 
 if "!text!"=="%baseline%" set text=/linebreak
+set baseline=/?
+if "!text!"=="%baseline%" set text=/help
+set baseline=on
+if "!text!"=="%baseline%" set text="on"
 (echo "!text!" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/del" >nul ) && (goto :del) || (echo. > nul )
