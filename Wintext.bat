@@ -132,13 +132,17 @@ if not "%dirend%"=="\" set dir=%dir%\
 cls
 if not exist "%dir%" mkdir "%dir%
 
-echo. >> "%dir%%filename%"
+if exist "%dir%%filename%" (
+    if not exist C:\DocTemp\ mkdir C:\DocTemp\
+    copy "%dir%%filename%" C:\DocTemp\doctemp.txt
+)
+echo. >> "C:\DocTemp\doctemp.txt"
 goto :textadd
 
 :SPLIT
 SETLOCAL DISABLEDELAYEDEXPANSION
 if not exist C:\DocTemp\ mkdir C:\DocTemp\
-copy "%dir%%filename%" C:\DocTemp\temp.txt > nul
+copy "C:\DocTemp\doctemp.txt" C:\DocTemp\temp.txt > nul
 SET /a fcount=1999999999
 SET /a llimit=1
 SET /a lcount=%llimit%
@@ -152,9 +156,9 @@ SET /a lcount+=1
 IF %lcount% lss %llimit% GOTO :EOF >NUL 2>nul
 SET /a lcount=0
 SET /a fcount+=1
-MOVE /y "C:\DocTemp\temp.txt$$" "%dir%%filename%line%fcount:~-9%" >NUL 2>nul
-attrib +h "%dir%%filename%line%fcount:~-9%" >NUL 2>nul
-echo %fcount:~-9% > "%dir%%filename%fcount"
+MOVE /y "C:\DocTemp\temp.txt$$" "C:\DocTemp\doctemp.txtline%fcount:~-9%" >NUL 2>nul
+attrib +h "C:\DocTemp\doctemp.txtline%fcount:~-9%" >NUL 2>nul
+echo %fcount:~-9% > "C:\DocTemp\doctemp.txtfcount"
 
 GOTO :EOF
 
@@ -180,11 +184,11 @@ if %splitfile% equ 1 (
     set textadd=0
 )
 if %typefile% equ 1 (
-    type "%dir%%filename%"
+    type "C:\DocTemp\doctemp.txt"
     goto :edit
 )
 if %typefileonce% equ 1 (
-    type "%dir%%filename%"
+    type "C:\DocTemp\doctemp.txt"
     set %typefileonce% equ 0
     goto :edit
 )
@@ -192,9 +196,8 @@ if %splitfileonce% equ 1 (
     call :split
     setlocal ENABLEDELAYEDEXPANSION
     del C:\DocTemp\temp.txt
-    rmdir C:\DocTemp\
-    set /p fcount2= < "%dir%%filename%fcount"
-    del "%dir%%filename%fcount"
+    set /p fcount2= < "C:\DocTemp\doctemp.txtfcount"
+    del "C:\DocTemp\doctemp.txtfcount"
     set lcount=2000000000
     echo.
     set typefile=1
@@ -204,15 +207,14 @@ if %splitfileonce% equ 1 (
 call :split
 setlocal ENABLEDELAYEDEXPANSION
 del C:\DocTemp\temp.txt
-rmdir C:\DocTemp\
-set /p fcount2= < "%dir%%filename%fcount"
-del "%dir%%filename%fcount"
+set /p fcount2= < "C:\DocTemp\doctemp.txtfcount"
+del "C:\DocTemp\doctemp.txtfcount"
 
 set lcount=2000000000
 
 :linebyline
 set /a lcount+=1
-set /p line=<"%dir%%filename%line%lcount:~-9%"
+set /p line=<"C:\DocTemp\doctemp.txtline%lcount:~-9%"
 set /a lcount1=%lcount%-2000000000
 echo Line: %lcount1% : !line!
 if %lcount:~-9% geq %fcount2% goto :edit
@@ -221,9 +223,9 @@ goto :linebyline
 :edit
 echo.
 set text= 
-attrib -h "%dir%%filename%%undo%" > nul
-copy /y "%dir%%filename%" "%dir%%filename%%undo%" > nul 2>nul
-attrib +h "%dir%%filename%%undo%" > nul
+attrib -h "C:\DocTemp\doctemp.txt%undo%" > nul
+copy /y "C:\DocTemp\doctemp.txt" "C:\DocTemp\doctemp.txt%undo%" > nul 2>nul
+attrib +h "C:\DocTemp\doctemp.txt%undo%" > nul
 set /p text="Type: " 2> nul
 set baseline= 
 if "!text!"=="%baseline%" set text=/linebreak
@@ -234,6 +236,7 @@ if "!text!"=="%baseline%" set text="on"
 set baseline=off
 if "!text!"=="%baseline%" set text="off"
 (echo "!text!" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/save" >nul ) && (call :save1) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/delfile" >nul ) && (goto :del) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/editline" >nul ) && (goto :line) || (echo. > nul )
@@ -248,7 +251,7 @@ if "!text!"=="%baseline%" set text="off"
 (echo "!text!" | findstr /i /c:"/help" >nul ) && (goto :help) || (goto :addtext)
 
 :addtext
-echo !text! >> "%dir%%filename%" 2> nul
+echo !text! >> "C:\DocTemp\doctemp.txt" 2> nul
 goto :textadd
 
 :newline
@@ -259,7 +262,7 @@ goto :line
 set text=%text:/delline =%
 set lcount=2000000000
 set /a lcount+=!text!
-del /a h "%dir%%filename%line%lcount:~-9%"
+del /a h "C:\DocTemp\doctemp.txtline%lcount:~-9%"
 goto :rebuild
 
 :typefile
@@ -280,12 +283,20 @@ if %input% equ 1 (
 if %input% equ 2 (
     set filename=%arg2%
 )
-echo. >> "%dir%%filename%"
+if not exist C:\DocTemp\ mkdir C:\DocTemp\
+copy "%dir%%filename%" C:\DocTemp\doctemp.txt
+echo. >> "C:\DocTemp\doctemp.txt"
+goto :textadd
+
+:save1
+call :save
 goto :textadd
 
 :skip
 set %dir%=
-echo. >> "%dir%%filename%"
+if not exist C:\DocTemp\ mkdir C:\DocTemp\
+copy "%dir%%filename%" C:\DocTemp\doctemp.txt
+echo. >> "C:\DocTemp\doctemp.txt"
 goto :textadd
 
 :commandlinehelp
@@ -307,27 +318,48 @@ set splitfileonce=1
 set typefile=0
 goto :textadd
 
+:save
+cls
+choice /c yn /n /m "Are you sure you want to save your file Y/N?"
+if %errorlevel% equ 1 (
+    type C:\DocTemp\doctemp.txt > "%dir%%filename%"
+    echo File Saved.
+    pause
+    exit /b
+)
+if %errorlevel% equ 2 (
+    exit /b
+)
+
 :undo
 if %undo% equ 1 set undo=11
 set /a undo-=1 2> nul
-type "%dir%%filename%%undo%" > "%dir%%filename%"
+type "C:\DocTemp\doctemp.txt%undo%" > "C:\DocTemp\doctemp.txt"
 set /a undo-=1 2> nul
 goto :textadd
 
 :redo
 if %undo% equ 10 set undo=0
 set /a undo+=1 2> nul
-type "%dir%%filename%%undo%" > "%dir%%filename%"
+type "C:\DocTemp\doctemp.txt%undo%" > "C:\DocTemp\doctemp.txt"
 set /a undo-=1 2> nul
 goto :textadd
 
 :del
-del "%dir%%filename%"
-set deleted=1
+choice /c yn /n /m "Are you sure you want to delete your file Y/N?"
+if %errorlevel% equ 1 (
+    del "%dir%%filename%"
+    del C:\DocTemp\doctemp.txt
+    set deleted=1
+    goto :textadd
+)
+if %errorlevel% equ 2 (
+    goto :textadd
+)
 goto :textadd
 
 :linebreak
-echo. >> "%dir%%filename%"
+echo. >> "C:\DocTemp\doctemp.txt"
 goto :textadd
 
 :line
@@ -354,16 +386,16 @@ for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
 echo =====%dir%%filename%=====
 echo =====Current Line Is: %lcount1%=====
 if %newline% equ 1 goto :editline
-set /p Line= <"%dir%%filename%line%lcount:~-9%"
+set /p Line= <"C:\DocTemp\doctemp.txtline%lcount:~-9%"
 echo.
 echo Line: %lcount1% : !line!
 echo.
 
 :editline
 set text= 
-attrib -h "%dir%%filename%%undo%" > nul
-copy /y "%dir%%filename%" "%dir%%filename%%undo%" > nul 2>nul
-attrib +h "%dir%%filename%%undo%" > nul
+attrib -h "C:\DocTemp\doctemp.txt%undo%" > nul
+copy /y "C:\DocTemp\doctemp.txt" "C:\DocTemp\doctemp.txt%undo%" > nul 2>nul
+attrib +h "C:\DocTemp\doctemp.txt%undo%" > nul
 set /p text="Type: " 2> nul
 set baseline= 
 if "!text!"=="%baseline%" set text=/linebreak
@@ -380,36 +412,37 @@ if "!text!"=="%baseline%" set text="off"
 (echo "!text!" | findstr /i /c:"/typefile" >nul ) && (goto :typefile) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo. > nul ) 
 (echo "!text!" | findstr /i /c:"/help" >nul ) && (goto :help) || (echo. > nul)
+(echo "!text!" | findstr /i /c:"/save" >nul ) && (call :save1) || (echo. > nul )
 if %newline% equ 1 (
      goto :addnewtextline
 )
 goto :addtextline
 
 :addtextline
-attrib -h "%dir%%filename%line%lcount:~-9%"
-echo !text! > "%dir%%filename%line%lcount:~-9%"
-attrib +h "%dir%%filename%line%lcount:~-9%"
+attrib -h "C:\DocTemp\doctemp.txtline%lcount:~-9%"
+echo !text! > "C:\DocTemp\doctemp.txtline%lcount:~-9%"
+attrib +h "C:\DocTemp\doctemp.txtline%lcount:~-9%"
 goto :rebuild
 
 :addnewtextline
-attrib -h "%dir%%filename%line%lcount:~-9%"
-copy "%dir%%filename%line%lcount:~-9%" "%dir%%filename%line%lcount:~-9%temp" > nul
-echo !text! > "%dir%%filename%line%lcount:~-9%"
-type "%dir%%filename%line%lcount:~-9%temp" >> "%dir%%filename%line%lcount:~-9%"
-del "%dir%%filename%line%lcount:~-9%temp"
-attrib +h "%dir%%filename%line%lcount:~-9%"
+attrib -h "C:\DocTemp\doctemp.txtline%lcount:~-9%"
+copy "C:\DocTemp\doctemp.txtline%lcount:~-9%" "C:\DocTemp\doctemp.txtline%lcount:~-9%temp" > nul
+echo !text! > "C:\DocTemp\doctemp.txtline%lcount:~-9%"
+type "C:\DocTemp\doctemp.txtline%lcount:~-9%temp" >> "C:\DocTemp\doctemp.txtline%lcount:~-9%"
+del "C:\DocTemp\doctemp.txtline%lcount:~-9%temp"
+attrib +h "C:\DocTemp\doctemp.txtline%lcount:~-9%"
 goto :rebuild
 
 :linelinebreak
-attrib -h "%dir%%filename%line%lcount:~-9%"
+attrib -h "C:\DocTemp\doctemp.txtline%lcount:~-9%"
 if %newline% equ 1 (
-    copy "%dir%%filename%line%lcount:~-9%" "%dir%%filename%line%lcount:~-9%temp" > nul
-    echo. > "%dir%%filename%line%lcount:~-9%"
-    type "%dir%%filename%line%lcount:~-9%temp" >> "%dir%%filename%line%lcount:~-9%"
-    del "%dir%%filename%line%lcount:~-9%temp"
+    copy "C:\DocTemp\doctemp.txtline%lcount:~-9%" "C:\DocTemp\doctemp.txtline%lcount:~-9%temp" > nul
+    echo. > "C:\DocTemp\doctemp.txtline%lcount:~-9%"
+    type "C:\DocTemp\doctemp.txtline%lcount:~-9%temp" >> "C:\DocTemp\doctemp.txtline%lcount:~-9%"
+    del "C:\DocTemp\doctemp.txtline%lcount:~-9%temp"
     goto :rebuild
 )
-echo. > "%dir%%filename%line%lcount:~-9%"
+echo. > "C:\DocTemp\doctemp.txtline%lcount:~-9%"
 goto :rebuild
 
 :rebuild
@@ -417,11 +450,11 @@ echo We can defeat COVID!
 set lcount=2000000000
 
 set /a lcount+=1
-type "%dir%%filename%line%lcount:~-9%" > "%dir%%filename%"
+type "C:\DocTemp\doctemp.txtline%lcount:~-9%" > "C:\DocTemp\doctemp.txt"
 
 :rebuildlinebyline
 set /a lcount+=1
-type "%dir%%filename%line%lcount:~-9%" >> "%dir%%filename%"
+type "C:\DocTemp\doctemp.txtline%lcount:~-9%" >> "C:\DocTemp\doctemp.txt"
 if %lcount:~-9% geq %fcount2% goto :textadd
 goto :rebuildlinebyline
 
@@ -432,7 +465,7 @@ set undo=11
 
 :undoclear1
 if %undo% equ 1 set undo=11
-del /a h "%dir%%filename%%undo%" 2> nul
+del /a h "C:\DocTemp\doctemp.txt%undo%" 2> nul
 set /a undo-=1
 if %undo% leq 1 goto :exit
 goto :undoclear1
@@ -471,10 +504,10 @@ goto :textadd
 :exit
 
 set undo=1
-del /a h "%dir%%filename%%undo%" 2> nul
+del /a h "C:\DocTemp\doctemp.txt%undo%" 2> nul
 
 set undo=1
-del /a h "%dir%%filename%%undo%" 2> nul
+del /a h "C:\DocTemp\doctemp.txt%undo%" 2> nul
 cls
 
 set lcount=2000000000
@@ -485,19 +518,24 @@ set fcount=%fcount:~-9%
 
 :deltemp
 set /a lcount+=1
-attrib -h "%dir%%filename%line%lcount:~-9%" > nul 2> nul
-del "%dir%%filename%line%lcount:~-9%" > nul 2> nul
+if exist "C:\DocTemp\doctemp.txtline%lcount:~-9%" (
+attrib -h "C:\DocTemp\doctemp.txtline%lcount:~-9%" > nul 2> nul
+del "C:\DocTemp\doctemp.txtline%lcount:~-9%" > nul 2> nul
+)
 if %lcount:~-9% geq %fcount2:~-9% goto :exit2
 goto :deltemp
 
 :exit2
 set /a lcount+=1
-attrib -h "%dir%%filename%line%lcount:~-9%" > nul 2> nul
-del "%dir%%filename%line%lcount:~-9%" > nul 2> nul
+attrib -h "C:\DocTemp\doctemp.txtline%lcount:~-9%" > nul 2> nul
+del "C:\DocTemp\doctemp.txtline%lcount:~-9%" > nul 2> nul
 
 set /a lcount+=1
-attrib -h "%dir%%filename%line%lcount:~-9%" > nul 2> nul
-del "%dir%%filename%line%lcount:~-9%" > nul 2> nul
+attrib -h "C:\DocTemp\doctemp.txtline%lcount:~-9%" > nul 2> nul
+del "C:\DocTemp\doctemp.txtline%lcount:~-9%" > nul 2> nul
+
+call :save
+cls
 
 echo Thank you for using !wintxt!!
 echo I hope it's not too terrible. hehe
@@ -515,5 +553,8 @@ if %errorlevel% equ 1 (
 )
 if %errorlevel% equ 2 (
     title cmd
+    del C:\DocTemp\doctemp.txt
+    rmdir C:\DocTemp\
+    cls
     exit /b
 )
