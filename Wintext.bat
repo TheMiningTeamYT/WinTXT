@@ -559,3 +559,4 @@ if %errorlevel% equ 2 (
     cls
     exit /b
 )
+exit /b
