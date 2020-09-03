@@ -492,6 +492,7 @@ echo /splitfile : Split the file (required for line editing) (enabled by default
 echo /splitfileonce : Split the file once.
 echo /editline (line number) : Edit that line
 echo /newline (line number) : Add that line
+echo /save : Save the current document.
 echo.
 echo And, if you have any bugs / need help, please email helpmewithstuff@protonmail.com .
 pause
