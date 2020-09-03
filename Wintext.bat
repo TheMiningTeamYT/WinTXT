@@ -305,7 +305,7 @@ echo Flags:
 echo -t : Typefile : Use the faster typefile mode in !wintext! (prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
-echo v2.86 (i guess) copyright 2020 Logan C.
+echo v3 (i guess) copyright 2020 Logan C.
 exit /b
 
 :splitfile
@@ -323,6 +323,12 @@ cls
 choice /c yn /n /m "Are you sure you want to save your file Y/N?"
 if %errorlevel% equ 1 (
     type C:\DocTemp\doctemp.txt > "%dir%%filename%"
+    echo This Document Was Written/Edited with !WinTXT! > "%dir%%filename%":shamelessplug
+    if !WinTXT! equ WinTXT (
+        echo !WinTXT! was made by Logan C. >> "%dir%%filename%":shamelessplug
+    ) Else (
+        echo !WinTXT! is based on WinTXT, which was made by Logan C. >> "%dir%%filename%":shamelessplug
+    )
     echo File Saved.
     pause
     exit /b
@@ -383,12 +389,13 @@ for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
-echo =====%dir%%filename%=====
+echo =====%display%=====
 echo =====Current Line Is: %lcount1%=====
 if %newline% equ 1 goto :editline
 set /p Line= <"C:\DocTemp\doctemp.txtline%lcount:~-9%"
 echo.
 echo Line: %lcount1% : !line!
+echo.
 echo.
 
 :editline
@@ -492,7 +499,6 @@ echo /splitfile : Split the file (required for line editing) (enabled by default
 echo /splitfileonce : Split the file once.
 echo /editline (line number) : Edit that line
 echo /newline (line number) : Add that line
-echo /save : Save the current document.
 echo.
 echo And, if you have any bugs / need help, please email helpmewithstuff@protonmail.com .
 pause
