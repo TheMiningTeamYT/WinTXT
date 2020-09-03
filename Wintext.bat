@@ -558,5 +558,7 @@ if %errorlevel% equ 2 (
     rmdir C:\DocTemp\
     cls
     exit /b
+    exit /b
+    exit /b
 )
 exit /b
