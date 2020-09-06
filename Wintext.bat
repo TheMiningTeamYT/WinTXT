@@ -7,6 +7,7 @@ set typefile=0
 set typefileonce=0
 set splitfile=0
 set splitfileonce=0
+set exit=0
 set dir=
 set filename=
 set wintext=wintext
@@ -73,23 +74,23 @@ goto :commandlinehelp
 
 :help2arg1
 set wintext=%arg1:/h =%
-for /f "useback tokens=*" %%a in ('!wintext!') do set wintext=%%~a
-for /f "useback tokens=*" %%a in ('!wintext!') do set wintext=%%~a
-for /f "useback tokens=*" %%a in ('!wintext!') do set wintext=%%~a
-for /f "useback tokens=*" %%a in ('!wintext!') do set wintext=%%~a
+for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
+for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
+for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
+for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
 goto :commandlinehelp
 
 :namearg1
-set WinTXT=!arg2!
-for /f "useback tokens=*" %%a in ('!wintxt!') do set WinTXT=%%~a
-for /f "useback tokens=*" %%a in ('!wintxt!') do set WinTXT=%%~a
+set WinTXT=%arg2%
+for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
+for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
 title %WinTXT%
 goto :beginning
 
 :namearg2
-set WinTXT=!arg3!
-for /f "useback tokens=*" %%a in ('!wintxt!') do set WinTXT=%%~a
-for /f "useback tokens=*" %%a in ('!wintxt!') do set WinTXT=%%~a
+set WinTXT=%arg3%
+for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
+for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
 title %WinTXT%
 (echo "%arg1%" | findstr /i /c:"-t" >nul ) && (goto :2targ1) || (echo. > nul )
 set baseline=""
@@ -98,9 +99,9 @@ set input=1
 goto :fileopen
 
 :namearg3
-set WinTXT=!arg4!
-for /f "useback tokens=*" %%a in ('!wintxt!') do set WinTXT=%%~a
-for /f "useback tokens=*" %%a in ('!wintxt!') do set WinTXT=%%~a
+set WinTXT=%arg4%
+for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
+for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
 title %WinTXT% 
 (echo "%arg1%" | findstr /i /c:"-t" >nul ) && (goto :3targ1) || (echo. > nul )
 (echo "%arg2%" | findstr /i /c:"-t" >nul ) && (goto :3targ2) || (echo. > nul )
@@ -111,8 +112,9 @@ set input=1
 goto :fileopen
 
 :beginning
+title %WinTXT%
 cls
-echo Welcome to !wintxt!, A Command Line Editor For Windows!!
+echo Welcome to %WinTXT%, A Command Line Editor For Windows!!
 echo This program was made by Logan C.
 pause
 
@@ -123,9 +125,9 @@ set /p filename="Enter Filename: "
 if exist %filename% goto :skip
 
 cls
-echo Where would you like to place your file? (Default is (your user directory)\!wintxt!Docs)
+echo Where would you like to place your file? (Default is (your user directory)\%WinTXT%Docs)
 set /p dir="Enter Directory: "
-if not defined dir set dir=%userprofile%\!wintxt!Docs\
+if not defined dir set dir=%userprofile%\%WinTXT%Docs\
 set dirend=%dir:~-1%
 if not "%dirend%"=="\" set dir=%dir%\
 
@@ -163,11 +165,13 @@ echo %fcount:~-9% > "C:\DocTemp\doctemp.txtfcount"
 GOTO :EOF
 
 :textadd
+if exit equ 1 exit /b
+title %WinTXT% : %dir%%filename%
 set newline=0
 set /a undo+=1
 cls
 if %undo% geq 11 set undo=1
-echo =====!wintxt! -- A Command Line Editor For Windows=====
+echo =====%WinTXT% -- A Command Line Editor For Windows=====
 echo =====Current Undo State is: %undo%=====
 set display=%dir%%filename%
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
@@ -236,7 +240,7 @@ if "!text!"=="%baseline%" set text="on"
 set baseline=off
 if "!text!"=="%baseline%" set text="off"
 (echo "!text!" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
-(echo "!text!" | findstr /i /c:"/save" >nul ) && (call :save1) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/save" >nul ) && (call :save1 ) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/delfile" >nul ) && (goto :del) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/editline" >nul ) && (goto :line) || (echo. > nul )
@@ -300,9 +304,9 @@ echo. >> "C:\DocTemp\doctemp.txt"
 goto :textadd
 
 :commandlinehelp
-echo Syntax: !wintext! (file) (flags)
+echo Syntax: %wintext% (file) (flags)
 echo Flags:
-echo -t : Typefile : Use the faster typefile mode in !wintext! (prevents use of line editing)
+echo -t : Typefile : Use the faster typefile mode in %wintext% (prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
 echo v3 (i guess) copyright 2020 Logan C.
@@ -322,14 +326,21 @@ goto :textadd
 cls
 choice /c yn /n /m "Are you sure you want to save your file Y/N?"
 if %errorlevel% equ 1 (
-    type C:\DocTemp\doctemp.txt > "%dir%%filename%"
-    echo This Document Was Written/Edited with !WinTXT! > "%dir%%filename%":shamelessplug
-    if !WinTXT! equ WinTXT (
-        echo !WinTXT! was made by Logan C. >> "%dir%%filename%":shamelessplug
+    type C:\DocTemp\doctemp.txt > "%dir%%filename%" 2> C:\DocTemp\output.txt
+    set /p output= < "C:\DocTemp\output.txt"
+    del C:\DocTemp\output.txt
+    echo This Document Was Written/Edited with %WinTXT% > "%dir%%filename%":shamelessplug
+    if %WinTXT% equ WinTXT (
+        echo %WinTXT% was made by Logan C. >> "%dir%%filename%":shamelessplug
     ) Else (
-        echo !WinTXT! is based on WinTXT, which was made by Logan C. >> "%dir%%filename%":shamelessplug
+        echo %WinTXT% is based on WinTXT, which was made by Logan C. >> "%dir%%filename%":shamelessplug
     )
-    echo File Saved.
+    set baseline=
+    if not "!output!"=="!baseline!" (
+        echo The Following Error Occured:
+        echo !baseline! ) else (
+            echo File Saved.
+        )
     pause
     exit /b
 )
@@ -382,7 +393,7 @@ set /a lcount1=%lcount%-2000000000
 set /a undo+=1
 cls
 if %undo% geq 11 set undo=1
-echo =====!wintxt! -- A Command Line Editor For Windows=====
+echo =====%WinTXT% -- A Command Line Editor For Windows=====
 echo =====Current Undo State is: %undo%=====
 set display=%dir%%filename%
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
@@ -474,20 +485,22 @@ set undo=11
 if %undo% equ 1 set undo=11
 del /a h "C:\DocTemp\doctemp.txt%undo%" 2> nul
 set /a undo-=1
-if %undo% leq 1 goto :exit
+if %undo% leq 1 (
+    set exit=1
+    goto :exit )
 goto :undoclear1
 
 :help
 cls
 
-echo Welcome to the help for !wintxt!, A Command Line Editor For Windows!
+echo Welcome to the help for %WinTXT%, A Command Line Editor For Windows!
 echo.
 echo #1: How to enter commands:
 echo At the "Type:" prompt, type the one of the commands shown below:
 echo.
 echo #2: Commands:
 echo.
-echo /exit : Exit !wintxt!.
+echo /exit : Exit %WinTXT%.
 echo /undo : Undo the previous command.
 echo /help : This help screen.
 echo /redo : Redo the previous undone command.
@@ -504,7 +517,7 @@ echo And, if you have any bugs / need help, please email helpmewithstuff@protonm
 pause
 
 cls
-echo Thank you for using !wintxt!.
+echo Thank you for using %WinTXT%.
 pause
 goto :textadd
 
@@ -544,7 +557,7 @@ del "C:\DocTemp\doctemp.txtline%lcount:~-9%" > nul 2> nul
 call :save
 cls
 
-echo Thank you for using !wintxt!!
+echo Thank you for using %WinTXT%!
 echo I hope it's not too terrible. hehe
 pause
 choice /c yn /n /m "Do you want to edit another file? Y/N"
@@ -554,6 +567,7 @@ if %errorlevel% equ 1 (
     set newline=0
     set typefileonce=0
     set splitfileonce=0
+    set exit=0
     set dir=
     set filename=
     goto :start
