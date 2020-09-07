@@ -1,5 +1,5 @@
 @echo off
-setlocal ENABLEDELAYEDEXPANSION
+setlocal DISABLEDELAYEDEXPANSION
 set undo=0
 set deleted=0
 set newline=0
@@ -122,6 +122,7 @@ echo This program was made by Logan C.
 pause
 
 :start
+setlocal ENABLEDELAYEDEXPANSION
 cls
 echo What would you like to name your file (and be sure to add a file extension)?
 set /p filename="Enter Filename: "
@@ -168,18 +169,18 @@ echo %fcount:~-9% > "C:\Temp\DocTemp\doctemp.txtfcount"
 GOTO :EOF
 
 :textadd
+setlocal ENABLEDELAYEDEXPANSION
 if exit equ 1 exit /b
 set display=%dir%%filename%
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
-title %WinTXT% : %display%
 set newline=0
 set /a undo+=1
 cls
 if %undo% geq 11 set undo=1
-echo =====%WinTXT% -- A Command Line Editor For Windows=====
+call :wintxtdisplay
 echo =====Current Undo State is: %undo%=====
 echo =====%display%=====
 if %commandsoff% equ 1 call :commandsoffwarning
@@ -322,6 +323,13 @@ goto :textadd
 call :save
 goto :textadd
 
+:wintxtdisplay
+setlocal DISABLEDELAYEDEXPANSION
+echo =====%WinTXT% -- A Command Line Editor For Windows=====
+title %WinTXT% : %display%
+setlocal ENABLEDELAYEDEXPANSION
+exit /b
+
 :skip
 set %dir%=
 if not exist C:\Temp\DocTemp\ mkdir C:\Temp\DocTemp\
@@ -335,7 +343,7 @@ echo Flags:
 echo -t : Typefile : Use the faster typefile mode in %wintext% (prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
-echo v3 (i guess) copyright 2020 Logan C.
+echo v3.2 (i guess) copyright 2020 Logan C.
 exit /b
 
 :splitfile
@@ -419,7 +427,7 @@ set /a lcount1=%lcount%-2000000000
 set /a undo+=1
 cls
 if %undo% geq 11 set undo=1
-echo =====%WinTXT% -- A Command Line Editor For Windows=====
+call :wintxtdisplay
 echo =====Current Undo State is: %undo%=====
 set display=%dir%%filename%
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
