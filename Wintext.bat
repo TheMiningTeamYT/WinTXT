@@ -7,6 +7,7 @@ set typefile=0
 set typefileonce=0
 set splitfile=0
 set splitfileonce=0
+set commandsoff=0
 set exit=0
 set dir=
 set filename=
@@ -168,19 +169,20 @@ GOTO :EOF
 
 :textadd
 if exit equ 1 exit /b
-title %WinTXT% : %dir%%filename%
+set display=%dir%%filename%
+for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
+for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
+for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
+for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
+title %WinTXT% : %display%
 set newline=0
 set /a undo+=1
 cls
 if %undo% geq 11 set undo=1
 echo =====%WinTXT% -- A Command Line Editor For Windows=====
 echo =====Current Undo State is: %undo%=====
-set display=%dir%%filename%
-for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
-for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
-for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
-for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
 echo =====%display%=====
+if %commandsoff% equ 1 call :commandsoffwarning
 echo.
 if %deleted% equ 1 (
     set deleted=0
@@ -241,6 +243,13 @@ set baseline=on
 if "!text!"=="%baseline%" set text="on"
 set baseline=off
 if "!text!"=="%baseline%" set text="off"
+if %commandsoff% equ 1 (
+    (echo "!text!" | findstr /i /c:"/commandson" >nul ) && (goto :commandson) || (echo. > nul )
+    (echo "!text!" | findstr /i /c:"/editline" >nul ) && (goto :line) || (echo. > nul )
+    (echo "!text!" | findstr /i /c:"/newline" >nul ) && (goto :newline) || (echo. > nul )
+    (echo "!text!" | findstr /i /c:"/delline" >nul ) && (goto :delline) || (echo. > nul )
+    goto :addtext
+)
 (echo "!text!" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/save" >nul ) && (call :save1 ) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
@@ -253,6 +262,7 @@ if "!text!"=="%baseline%" set text="off"
 (echo "!text!" | findstr /i /c:"/typefileonce" >nul ) && (goto :typefile) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/splitfileonce" >nul ) && (goto :splitfileonce) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/splitfile" >nul ) && (goto :splitfile) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/commandsoff" >nul ) && (goto :commandsoff) || (echo. > nul ) 
 (echo "!text!" | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo. > nul ) 
 (echo "!text!" | findstr /i /c:"/help" >nul ) && (goto :help) || (goto :addtext)
 
@@ -277,6 +287,20 @@ if %typefileonce% equ 1 goto :textadd
 set typefile=1
 set splitfile=0
 goto :textadd
+
+:commandsoff
+set commandsoff=1
+goto :textadd
+
+:commandson
+set commandsoff=0
+goto :textadd
+
+:commandsoffwarning
+setlocal DISABLEDELAYEDEXPANSION
+echo !!===!!WARNING! COMMANDS ARE CURRENTLY OFF! TO RE-ENABLE COMMANDS, TYPE "/commandson" !!===!!
+setlocal ENABLEDELAYEDEXPANSION
+exit /b
 
 :fileopen
 set dir=
@@ -328,7 +352,7 @@ goto :textadd
 cls
 choice /c yn /n /m "Are you sure you want to save your file Y/N?"
 if %errorlevel% equ 1 (
-    type C:\Temp\DocTemp\doctemp.txt > "%dir%%filename%" 2> C:\Temp\DocTemp\output.txt
+    copy C:\Temp\DocTemp\doctemp.txt "%dir%%filename%" 2> C:\Temp\DocTemp\output.txt
     set /p output= < "C:\Temp\DocTemp\output.txt"
     del C:\Temp\DocTemp\output.txt
     echo This Document Was Written/Edited with %WinTXT% > "%dir%%filename%":shamelessplug
@@ -404,6 +428,7 @@ for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
 echo =====%display%=====
 echo =====Current Line Is: %lcount1%=====
+if %commandsoff% equ 1 call :commandsoffwarning
 if %newline% equ 1 goto :editline
 set /p Line= <"C:\Temp\DocTemp\doctemp.txtline%lcount:~-9%"
 echo.
@@ -425,9 +450,13 @@ set baseline=on
 if "!text!"=="%baseline%" set text="on"
 set baseline=off
 if "!text!"=="%baseline%" set text="off"
+if %commandsoff% equ 1 (
+    (echo "!text!" | findstr /i /c:"/commandson" >nul ) && (goto :commandson) || (echo. > nul )
+    goto :addtextline
+)
 (echo "!text!" | findstr /i /c:"/undo" >nul ) && (goto :undo) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/redo" >nul ) && (goto :redo) || (echo. > nul )
-(echo "!text!" | findstr /i /c:"/del" >nul ) && (goto :del) || (echo. > nul )
+(echo "!text!" | findstr /i /c:"/delfile" >nul ) && (goto :del) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/linebreak" >nul ) && (goto :linelinebreak) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/typefile" >nul ) && (goto :typefile) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo. > nul ) 
@@ -478,8 +507,6 @@ type "C:\Temp\DocTemp\doctemp.txtline%lcount:~-9%" >> "C:\Temp\DocTemp\doctemp.t
 if %lcount:~-9% geq %fcount2% goto :textadd
 goto :rebuildlinebyline
 
-
-
 :undoclear
 set undo=11
 
@@ -494,7 +521,6 @@ goto :undoclear1
 
 :help
 cls
-
 echo Welcome to the help for %WinTXT%, A Command Line Editor For Windows!
 echo.
 echo #1: How to enter commands:
@@ -512,10 +538,13 @@ echo /typefile : Type the file normally instead of having the line markings. (ca
 echo /typefileonce : Type the file normally once.
 echo /splitfile : Split the file (required for line editing) (enabled by default) (high performance impact)
 echo /splitfileonce : Split the file once.
+echo /commandsoff : Turn off all commands except:
+echo /commandson : Turns commands back off (can't be run before running /commandsoff)
 echo /editline (line number) : Edit that line
 echo /newline (line number) : Add that line
+echo and /delline : Delete that line
 echo.
-echo And, if you have any bugs / need help, please email helpmewithstuff@protonmail.com .
+echo And, if you encounter any bugs / need any help, please email helpmewithstuff@protonmail.com .
 pause
 
 cls
@@ -570,6 +599,7 @@ if %errorlevel% equ 1 (
     set typefileonce=0
     set splitfileonce=0
     set exit=0
+    set commandsoff=0
     set dir=
     set filename=
     if exist C:\Temp\DocTemp\doctemp.txt (
