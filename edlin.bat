@@ -17,7 +17,6 @@ exit /b
 
 :helparg1
 cls
-set arg1=/h %lowercasename%
 color
-call wintext "%arg1%"
+call wintext /h "%lowercasename%"
 exit /b
