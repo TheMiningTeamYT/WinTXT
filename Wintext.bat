@@ -76,7 +76,7 @@ set arg1=%arg3%
 goto :commandlinehelp
 
 :help2arg1
-set wintext=%arg1:/h =%
+set wintext=%arg2%
 for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
 for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
 for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
@@ -340,7 +340,7 @@ goto :textadd
 :commandlinehelp
 echo Syntax: %wintext% (file) (flags)
 echo Flags:
-echo -t : Typefile : Use the faster typefile mode in %wintext% (prevents use of line editing)
+echo -t : Typefile : Use the faster typefile mode in %wintext% (way faster, prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
 echo v3.2 (i guess) copyright 2020 Logan C.
