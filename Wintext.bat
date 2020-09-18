@@ -367,6 +367,7 @@ choice /c yn /n /m "Would you like to attempt to recover? Y/N"
 if %errorlevel% equ 1 (
     set /p dir= < "C:\Temp\DocTemp\dir"
     set /p filename= < "C:\Temp\DocTemp\filename"
+    set /p undo= < "C:\Temp\DocTemp\undo"
     goto :textadd
     
 )
