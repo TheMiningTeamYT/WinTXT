@@ -18,8 +18,6 @@ set arg1="%1"
 set arg2="%2"
 set arg3="%3"
 set arg4="%4"
-if exist C:\Temp\DocTemp\doctemp.txt (
-        del C:\Temp\DocTemp\doctemp.txt )
 (echo "%arg1%" | findstr /i /c:"-?" >nul ) && (goto :helparg1) || (echo. > nul)
 (echo "%arg2%" | findstr /i /c:"-?" >nul ) && (goto :helparg2) || (echo. > nul)
 (echo "%arg3%" | findstr /i /c:"-?" >nul ) && (goto :helparg3) || (echo. > nul)
@@ -116,6 +114,7 @@ goto :fileopen
 
 :beginning
 title %WinTXT%
+if exist C:\Temp\DocTemp\unsaved goto :recoverstart
 cls
 echo Welcome to %WinTXT%, A Command Line Editor For Windows!!
 echo This program was made by Logan C.
@@ -269,6 +268,12 @@ if %commandsoff% equ 1 (
 
 :addtext
 echo !text! >> "C:\Temp\DocTemp\doctemp.txt" 2> nul
+echo This File Exists^! > "C:\Temp\DocTemp\unsaved" 2> nul
+echo %dir%> "C:\Temp\DocTemp\dir" 2> nul
+echo %filename%> "C:\Temp\DocTemp\filename" 2> nul
+attrib +h "C:\Temp\DocTemp\unsaved" 2> nul
+attrib +h "C:\Temp\DocTemp\dir" 2> nul
+attrib +h "C:\Temp\DocTemp\filename" 2> nul
 goto :textadd
 
 :newline
@@ -314,9 +319,10 @@ if %input% equ 1 (
 if %input% equ 2 (
     set filename=%arg2%
 )
+if exist C:\Temp\DocTemp\unsaved goto :recover
 if not exist C:\Temp\DocTemp\ mkdir C:\Temp\DocTemp\
 copy "%dir%%filename%" C:\Temp\DocTemp\doctemp.txt
-echo. >> "C:\Temp\DocTemp\doctemp.txt"
+echo. > "C:\Temp\DocTemp\doctemp.txt"
 goto :textadd
 
 :save1
@@ -332,9 +338,10 @@ exit /b
 
 :skip
 set %dir%=
+if exist C:\Temp\DocTemp\unsaved goto :recover
 if not exist C:\Temp\DocTemp\ mkdir C:\Temp\DocTemp\
 copy "%dir%%filename%" C:\Temp\DocTemp\doctemp.txt
-echo. >> "C:\Temp\DocTemp\doctemp.txt"
+echo. > "C:\Temp\DocTemp\doctemp.txt"
 goto :textadd
 
 :commandlinehelp
@@ -343,13 +350,51 @@ echo Flags:
 echo -t : Typefile : Use the faster typefile mode in %wintext% (way faster, prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
-echo v3.2 (i guess) copyright 2020 Logan C.
+echo v3.6 (i guess) copyright 2020 Logan C.
 exit /b
 
 :splitfile
 set typefile=0
 set splitfile=1
 goto :textadd
+
+:recover
+echo Warning! %WinTXT% Has detected an unsaved file that was being edited.
+choice /c yn /n /m "Would you like to attempt to recover? Y/N"
+if %errorlevel% equ 1 (
+    set /p dir= < "C:\Temp\DocTemp\dir"
+    set /p filename= < "C:\Temp\DocTemp\filename"
+    goto :textadd
+    
+)
+if %errorlevel% equ 2 (
+    del C:\Temp\DocTemp\doctemp.txt
+    del /ah /q C:\Temp\DocTemp\unsaved
+    del /ah /q C:\Temp\DocTemp\dir
+    del /ah /q C:\Temp\DocTemp\filename
+    if not exist C:\Temp\DocTemp\ mkdir C:\Temp\DocTemp\
+    copy "%dir%%filename%" C:\Temp\DocTemp\doctemp.txt
+    echo. > "C:\Temp\DocTemp\doctemp.txt"
+    goto :textadd
+)
+goto :textadd
+
+:recoverstart
+echo WARNING! %WinTXT% Has detected a file was edited and not saved.
+choice /c yn /n /m "Would you like to attempt to recover the file? Y/N"
+if %errorlevel% equ 1 (
+    set /p dir= < "C:\Temp\DocTemp\dir"
+    set /p filename= < "C:\Temp\DocTemp\filename"
+    goto :textadd
+)
+if %errorlevel% equ 2 (
+    del /ah /q "C:\Temp\DocTemp\unsaved"
+    del /ah /q "C:\Temp\DocTemp\dir"
+    del /ah /q "C:\Temp\DocTemp\filename"
+    del /ah /q "C:\Temp\DocTemp\doctemp.txt"
+    goto :start
+)
+
 
 :splitfileonce
 set splitfileonce=1
@@ -361,8 +406,12 @@ cls
 choice /c yn /n /m "Are you sure you want to save your file Y/N?"
 if %errorlevel% equ 1 (
     copy C:\Temp\DocTemp\doctemp.txt "%dir%%filename%" 2> C:\Temp\DocTemp\output.txt
-    set /p output= < "C:\Temp\DocTemp\output.txt"
-    del C:\Temp\DocTemp\output.txt
+    set /p output= < "C:\Temp\DocTemp\output.txt"  2> nul
+    del C:\Temp\DocTemp\output.txt  2> nul 
+    del /ah /q C:\Temp\DocTemp\unsaved  2> nul
+    del /ah /q C:\Temp\DocTemp\dir  2> nul
+    del /ah /q C:\Temp\DocTemp\filename  2> nul
+
     echo This Document Was Written/Edited with %WinTXT% > "%dir%%filename%":shamelessplug
     if %WinTXT% equ WinTXT (
         echo %WinTXT% was made by Logan C. >> "%dir%%filename%":shamelessplug
@@ -479,6 +528,12 @@ goto :addtextline
 attrib -h "C:\Temp\DocTemp\doctemp.txtline%lcount:~-9%"
 echo !text! > "C:\Temp\DocTemp\doctemp.txtline%lcount:~-9%"
 attrib +h "C:\Temp\DocTemp\doctemp.txtline%lcount:~-9%"
+echo This File Exists^! > "C:\Temp\DocTemp\unsaved"
+echo %dir% > "C:\Temp\DocTemp\dir"
+echo %filename% > "C:\Temp\DocTemp\filename"
+attrib +h "C:\Temp\DocTemp\unsaved"
+attrib +h "C:\Temp\DocTemp\dir"
+attrib +h "C:\Temp\DocTemp\filename"
 goto :rebuild
 
 :addnewtextline
@@ -617,6 +672,9 @@ if %errorlevel% equ 1 (
 if %errorlevel% equ 2 (
     title cmd
     del C:\Temp\DocTemp\doctemp.txt
+    del /ah /q C:\Temp\DocTemp\unsaved
+    del /ah /q C:\Temp\DocTemp\dir
+    del /ah /q C:\Temp\DocTemp\filename
     rmdir C:\Temp\DocTemp\
     cls
     exit /b
