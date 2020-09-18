@@ -267,9 +267,10 @@ if %commandsoff% equ 1 (
 (echo "!text!" | findstr /i /c:"/help" >nul ) && (goto :help) || (goto :addtext)
 
 :addtext
+set baseline=
 echo !text! >> "C:\Temp\DocTemp\doctemp.txt" 2> nul
 echo This File Exists^! > "C:\Temp\DocTemp\unsaved" 2> nul
-echo %dir%> "C:\Temp\DocTemp\dir" 2> nul
+if not "%dir%"=="%baseline%" echo %dir%> "C:\Temp\DocTemp\dir" 2> nul
 echo %filename%> "C:\Temp\DocTemp\filename" 2> nul
 attrib -h "C:\Temp\DocTemp\undo"
 echo %undo% > "C:\Temp\DocTemp\undo"
@@ -396,9 +397,9 @@ if %errorlevel% equ 2 (
     del /ah /q "C:\Temp\DocTemp\unsaved"
     del /ah /q "C:\Temp\DocTemp\dir"
     del /ah /q "C:\Temp\DocTemp\filename"
-    del /ah /q "C:\Temp\DocTemp\doctemp.txt"
+    del /q "C:\Temp\DocTemp\doctemp.txt"
     del /ah /q "C:\Temp\DocTemp\undo"
-    goto :start
+    goto :beginning
 )
 
 
@@ -535,7 +536,7 @@ goto :addtextline
 attrib -h "C:\Temp\DocTemp\doctemp.txtline%lcount:~-9%"
 echo !text! > "C:\Temp\DocTemp\doctemp.txtline%lcount:~-9%"
 echo This File Exists^! > "C:\Temp\DocTemp\unsaved" 2> nul
-echo %dir%> "C:\Temp\DocTemp\dir" 2> nul
+if not "%dir%"=="%baseline%" echo %dir%> "C:\Temp\DocTemp\dir" 2> nul
 echo %filename%> "C:\Temp\DocTemp\filename" 2> nul
 attrib -h "C:\Temp\DocTemp\undo"
 echo %undo% > "C:\Temp\DocTemp\undo"
