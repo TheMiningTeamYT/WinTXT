@@ -271,9 +271,12 @@ echo !text! >> "C:\Temp\DocTemp\doctemp.txt" 2> nul
 echo This File Exists^! > "C:\Temp\DocTemp\unsaved" 2> nul
 echo %dir%> "C:\Temp\DocTemp\dir" 2> nul
 echo %filename%> "C:\Temp\DocTemp\filename" 2> nul
+attrib -h "C:\Temp\DocTemp\undo"
+echo %undo% > "C:\Temp\DocTemp\undo"
 attrib +h "C:\Temp\DocTemp\unsaved" 2> nul
 attrib +h "C:\Temp\DocTemp\dir" 2> nul
 attrib +h "C:\Temp\DocTemp\filename" 2> nul
+attrib +h "C:\Temp\DocTemp\undo"
 goto :textadd
 
 :newline
@@ -350,7 +353,7 @@ echo Flags:
 echo -t : Typefile : Use the faster typefile mode in %wintext% (way faster, prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
-echo v3.6 (i guess) copyright 2020 Logan C.
+echo v3.7 (i guess) copyright 2020 Logan C.
 exit /b
 
 :splitfile
@@ -385,6 +388,7 @@ choice /c yn /n /m "Would you like to attempt to recover the file? Y/N"
 if %errorlevel% equ 1 (
     set /p dir= < "C:\Temp\DocTemp\dir"
     set /p filename= < "C:\Temp\DocTemp\filename"
+    set /p undo= < "C:\Temp\DocTemp\undo"
     goto :textadd
 )
 if %errorlevel% equ 2 (
@@ -392,6 +396,7 @@ if %errorlevel% equ 2 (
     del /ah /q "C:\Temp\DocTemp\dir"
     del /ah /q "C:\Temp\DocTemp\filename"
     del /ah /q "C:\Temp\DocTemp\doctemp.txt"
+    del /ah /q "C:\Temp\DocTemp\undo"
     goto :start
 )
 
@@ -411,6 +416,7 @@ if %errorlevel% equ 1 (
     del /ah /q C:\Temp\DocTemp\unsaved  2> nul
     del /ah /q C:\Temp\DocTemp\dir  2> nul
     del /ah /q C:\Temp\DocTemp\filename  2> nul
+    del /ah /q C:\Temp\DocTemp\undo 2> nul
 
     echo This Document Was Written/Edited with %WinTXT% > "%dir%%filename%":shamelessplug
     if %WinTXT% equ WinTXT (
@@ -527,13 +533,15 @@ goto :addtextline
 :addtextline
 attrib -h "C:\Temp\DocTemp\doctemp.txtline%lcount:~-9%"
 echo !text! > "C:\Temp\DocTemp\doctemp.txtline%lcount:~-9%"
-attrib +h "C:\Temp\DocTemp\doctemp.txtline%lcount:~-9%"
-echo This File Exists^! > "C:\Temp\DocTemp\unsaved"
-echo %dir% > "C:\Temp\DocTemp\dir"
-echo %filename% > "C:\Temp\DocTemp\filename"
-attrib +h "C:\Temp\DocTemp\unsaved"
-attrib +h "C:\Temp\DocTemp\dir"
-attrib +h "C:\Temp\DocTemp\filename"
+echo This File Exists^! > "C:\Temp\DocTemp\unsaved" 2> nul
+echo %dir%> "C:\Temp\DocTemp\dir" 2> nul
+echo %filename%> "C:\Temp\DocTemp\filename" 2> nul
+attrib -h "C:\Temp\DocTemp\undo"
+echo %undo% > "C:\Temp\DocTemp\undo"
+attrib +h "C:\Temp\DocTemp\unsaved" 2> nul
+attrib +h "C:\Temp\DocTemp\dir" 2> nul
+attrib +h "C:\Temp\DocTemp\filename" 2> nul
+attrib +h "C:\Temp\DocTemp\undo"
 goto :rebuild
 
 :addnewtextline
