@@ -326,7 +326,7 @@ if %input% equ 2 (
 if exist C:\Temp\DocTemp\unsaved goto :recover
 if not exist C:\Temp\DocTemp\ mkdir C:\Temp\DocTemp\
 copy "%dir%%filename%" C:\Temp\DocTemp\doctemp.txt
-echo. > "C:\Temp\DocTemp\doctemp.txt"
+echo. >> "C:\Temp\DocTemp\doctemp.txt"
 goto :textadd
 
 :save1
@@ -345,7 +345,7 @@ set %dir%=
 if exist C:\Temp\DocTemp\unsaved goto :recover
 if not exist C:\Temp\DocTemp\ mkdir C:\Temp\DocTemp\
 copy "%dir%%filename%" C:\Temp\DocTemp\doctemp.txt
-echo. > "C:\Temp\DocTemp\doctemp.txt"
+echo. >> "C:\Temp\DocTemp\doctemp.txt"
 goto :textadd
 
 :commandlinehelp
@@ -354,7 +354,7 @@ echo Flags:
 echo -t : Typefile : Use the faster typefile mode in %wintext% (way faster, prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
-echo v3.7 (i guess) copyright 2020 Logan C.
+echo v3.71 (i guess) copyright 2020 Logan C.
 exit /b
 
 :splitfile
@@ -379,7 +379,7 @@ if %errorlevel% equ 2 (
     del /ah /q C:\Temp\DocTemp\filename
     if not exist C:\Temp\DocTemp\ mkdir C:\Temp\DocTemp\
     copy "%dir%%filename%" C:\Temp\DocTemp\doctemp.txt
-    echo. > "C:\Temp\DocTemp\doctemp.txt"
+    echo. >> "C:\Temp\DocTemp\doctemp.txt"
     goto :textadd
 )
 goto :textadd
