@@ -63,6 +63,8 @@ set input=1
 goto :fileopen
 
 :helparg1
+echo wtf
+pause
 goto :commandlinehelp
 
 :helparg2
@@ -74,11 +76,12 @@ set arg1=%arg3%
 goto :commandlinehelp
 
 :help2arg1
-set wintext=%arg2%
+set wintext=%arg1%
 for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
 for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
 for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
 for /f "useback tokens=*" %%a in ('%wintext%') do set wintext=%%~a
+set wintext=%wintext:~-4%
 goto :commandlinehelp
 
 :namearg1
@@ -169,7 +172,8 @@ GOTO :EOF
 
 :textadd
 setlocal ENABLEDELAYEDEXPANSION
-if exit equ 1 exit /b
+if %exit% equ 1 exit /b
+if not exist C:\Temp\DocTemp\ mkdir C:\Temp\DocTemp\
 set display=%dir%%filename%
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
@@ -192,20 +196,20 @@ if %splitfile% equ 1 (
     set textadd=0
 )
 if %typefile% equ 1 (
-    type "C:\Temp\DocTemp\doctemp.txt"
+    type "C:\Temp\DocTemp\doctemp.txt" 2> nul
     goto :edit
 )
 if %typefileonce% equ 1 (
-    type "C:\Temp\DocTemp\doctemp.txt"
+    type "C:\Temp\DocTemp\doctemp.txt" 2> nul
     set %typefileonce% equ 0
     goto :edit
 )
 if %splitfileonce% equ 1 (
     call :split
     setlocal ENABLEDELAYEDEXPANSION
-    del C:\Temp\DocTemp\temp.txt
-    set /p fcount2= < "C:\Temp\DocTemp\doctemp.txtfcount"
-    del "C:\Temp\DocTemp\doctemp.txtfcount"
+    del C:\Temp\DocTemp\temp.txt  2> nul
+    set /p fcount2= < "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+    del "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
     set lcount=2000000000
     echo.
     set typefile=1
@@ -214,9 +218,9 @@ if %splitfileonce% equ 1 (
     )
 call :split
 setlocal ENABLEDELAYEDEXPANSION
-del C:\Temp\DocTemp\temp.txt
-set /p fcount2= < "C:\Temp\DocTemp\doctemp.txtfcount"
-del "C:\Temp\DocTemp\doctemp.txtfcount"
+del C:\Temp\DocTemp\temp.txt  2> nul
+set /p fcount2= < "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+del "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
 
 set lcount=2000000000
 
@@ -354,7 +358,7 @@ echo Flags:
 echo -t : Typefile : Use the faster typefile mode in %wintext% (way faster, prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
-echo v3.71 (i guess) copyright 2020 Logan C.
+echo v3.8 (i guess) copyright 2020 Logan C.
 exit /b
 
 :splitfile
