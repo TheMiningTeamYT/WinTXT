@@ -143,8 +143,16 @@ if not exist "%dir%" mkdir "%dir%
 if exist "%dir%%filename%" (
     if not exist C:\Temp\DocTemp\ mkdir C:\Temp\DocTemp\
     copy "%dir%%filename%" C:\Temp\DocTemp\doctemp.txt
+) else (
+    del C:\Temp\DocTemp\doctemp.txt
 )
 echo. >> "C:\Temp\DocTemp\doctemp.txt"
+call :SPLIT
+setlocal ENABLEDELAYEDEXPANSION
+del C:\Temp\DocTemp\temp.txt  2> nul
+set /p fcount2= < "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+del "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+set lcount=2000000000
 goto :textadd
 
 :SPLIT
@@ -192,41 +200,12 @@ if %deleted% equ 1 (
     set deleted=0
     goto :edit
 )
-if %splitfile% equ 1 (
-    set textadd=0
-)
-if %typefile% equ 1 (
-    type "C:\Temp\DocTemp\doctemp.txt" 2> nul
-    goto :edit
-)
-if %typefileonce% equ 1 (
-    type "C:\Temp\DocTemp\doctemp.txt" 2> nul
-    set %typefileonce% equ 0
-    goto :edit
-)
-if %splitfileonce% equ 1 (
-    call :split
-    setlocal ENABLEDELAYEDEXPANSION
-    del C:\Temp\DocTemp\temp.txt  2> nul
-    set /p fcount2= < "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
-    del "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
-    set lcount=2000000000
-    echo.
-    set typefile=1
-    set splitfileonce=0
-    goto :linebyline
-    )
-call :split
-setlocal ENABLEDELAYEDEXPANSION
-del C:\Temp\DocTemp\temp.txt  2> nul
-set /p fcount2= < "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
-del "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
 
 set lcount=2000000000
 
 :linebyline
 set /a lcount+=1
-set /p line=<"C:\Temp\DocTemp\doctemp.txtline%lcount:~-9%"
+set /p line=<"C:\Temp\DocTemp\doctemp.txtline%lcount:~-9%" 2> nul
 set /a lcount1=%lcount%-2000000000
 echo Line: %lcount1% : !line!
 if %lcount:~-9% geq %fcount2% goto :edit
@@ -273,15 +252,19 @@ if %commandsoff% equ 1 (
 :addtext
 set baseline=
 echo !text! >> "C:\Temp\DocTemp\doctemp.txt" 2> nul
+echo !text! > "C:\Temp\DocTemp\temp.txt" 2> nul
+call :addline
+set /p fcount2= < C:\Temp\DocTemp\fcount 2> nul
+del C:\Temp\DocTemp\fcount > nul 2> nul
 echo This File Exists^! > "C:\Temp\DocTemp\unsaved" 2> nul
 if not "%dir%"=="%baseline%" echo %dir%> "C:\Temp\DocTemp\dir" 2> nul
 echo %filename%> "C:\Temp\DocTemp\filename" 2> nul
-attrib -h "C:\Temp\DocTemp\undo"
-echo %undo% > "C:\Temp\DocTemp\undo"
+attrib -h "C:\Temp\DocTemp\undo" 2> nul
+echo %undo% > "C:\Temp\DocTemp\undo" 2> nul
 attrib +h "C:\Temp\DocTemp\unsaved" 2> nul
 attrib +h "C:\Temp\DocTemp\dir" 2> nul
 attrib +h "C:\Temp\DocTemp\filename" 2> nul
-attrib +h "C:\Temp\DocTemp\undo"
+attrib +h "C:\Temp\DocTemp\undo" 2> nul
 goto :textadd
 
 :newline
@@ -316,6 +299,17 @@ echo !!===!!WARNING! COMMANDS ARE CURRENTLY OFF! TO RE-ENABLE COMMANDS, TYPE "/c
 setlocal ENABLEDELAYEDEXPANSION
 exit /b
 
+:addline
+setlocal DISABLEDELAYEDEXPANSION 2> nul
+set /a lcount+=1
+echo %lcount:~-9% > C:\Temp\DocTemp\fcount
+attrib -h C:\Temp\DocTemp\doctemp.txtline%lcount:~-9% 2> nul
+copy C:\Temp\DocTemp\temp.txt C:\Temp\DocTemp\doctemp.txtline%lcount:~-9% > nul 2> nul
+del C:\Temp\DocTemp\temp.txt > nul 2> nul
+attrib +h C:\Temp\DocTemp\doctemp.txtline%lcount:~-9% 2> nul
+setlocal ENABLEDELAYEDEXPANSION 2> nul
+exit /b
+
 :fileopen
 set dir=
 if %input% equ 0 (
@@ -329,8 +323,15 @@ if %input% equ 2 (
 )
 if exist C:\Temp\DocTemp\unsaved goto :recover
 if not exist C:\Temp\DocTemp\ mkdir C:\Temp\DocTemp\
+del > C:\Temp\DocTemp\doctemp.txt
 copy "%dir%%filename%" C:\Temp\DocTemp\doctemp.txt
 echo. >> "C:\Temp\DocTemp\doctemp.txt"
+call :SPLIT
+setlocal ENABLEDELAYEDEXPANSION
+del C:\Temp\DocTemp\temp.txt  2> nul
+set /p fcount2= < "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+del "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+set lcount=2000000000
 goto :textadd
 
 :save1
@@ -348,8 +349,15 @@ exit /b
 set %dir%=
 if exist C:\Temp\DocTemp\unsaved goto :recover
 if not exist C:\Temp\DocTemp\ mkdir C:\Temp\DocTemp\
+del C:\Temp\DocTemp\doctemp.txt
 copy "%dir%%filename%" C:\Temp\DocTemp\doctemp.txt
 echo. >> "C:\Temp\DocTemp\doctemp.txt"
+call :SPLIT
+setlocal ENABLEDELAYEDEXPANSION
+del C:\Temp\DocTemp\temp.txt  2> nul
+set /p fcount2= < "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+del "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+set lcount=2000000000
 goto :textadd
 
 :commandlinehelp
@@ -358,7 +366,7 @@ echo Flags:
 echo -t : Typefile : Use the faster typefile mode in %wintext% (way faster, prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
-echo v3.8 (i guess) copyright 2020 Logan C.
+echo v4 (i guess) copyright 2020 Logan C.
 exit /b
 
 :splitfile
@@ -373,6 +381,12 @@ if %errorlevel% equ 1 (
     set /p dir= < "C:\Temp\DocTemp\dir"
     set /p filename= < "C:\Temp\DocTemp\filename"
     set /p undo= < "C:\Temp\DocTemp\undo"
+    call :SPLIT
+    setlocal ENABLEDELAYEDEXPANSION
+    del C:\Temp\DocTemp\temp.txt  2> nul
+    set /p fcount2= < "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+    del "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+    set lcount=2000000000
     goto :textadd
     
 )
@@ -395,6 +409,12 @@ if %errorlevel% equ 1 (
     set /p dir= < "C:\Temp\DocTemp\dir"
     set /p filename= < "C:\Temp\DocTemp\filename"
     set /p undo= < "C:\Temp\DocTemp\undo"
+    call :SPLIT
+    setlocal ENABLEDELAYEDEXPANSION
+    del C:\Temp\DocTemp\temp.txt  2> nul
+    set /p fcount2= < "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+    del "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+    set lcount=2000000000
     goto :textadd
 )
 if %errorlevel% equ 2 (
@@ -447,6 +467,12 @@ if %errorlevel% equ 2 (
 if %undo% equ 1 set undo=11
 set /a undo-=1 2> nul
 type "C:\Temp\DocTemp\doctemp.txt%undo%" > "C:\Temp\DocTemp\doctemp.txt"
+call :SPLIT
+setlocal ENABLEDELAYEDEXPANSION
+del C:\Temp\DocTemp\temp.txt  2> nul
+set /p fcount2= < "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+del "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+set lcount=2000000000
 set /a undo-=1 2> nul
 goto :textadd
 
@@ -454,6 +480,12 @@ goto :textadd
 if %undo% equ 10 set undo=0
 set /a undo+=1 2> nul
 type "C:\Temp\DocTemp\doctemp.txt%undo%" > "C:\Temp\DocTemp\doctemp.txt"
+call :SPLIT
+setlocal ENABLEDELAYEDEXPANSION
+del C:\Temp\DocTemp\temp.txt  2> nul
+set /p fcount2= < "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+del "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+set lcount=2000000000
 set /a undo-=1 2> nul
 goto :textadd
 
@@ -462,6 +494,12 @@ choice /c yn /n /m "Are you sure you want to delete your file Y/N?"
 if %errorlevel% equ 1 (
     del "%dir%%filename%"
     del C:\Temp\DocTemp\doctemp.txt
+    call :SPLIT
+    setlocal ENABLEDELAYEDEXPANSION
+    del C:\Temp\DocTemp\temp.txt  2> nul
+    set /p fcount2= < "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+    del "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+    set lcount=2000000000
     set deleted=1
     goto :textadd
 )
@@ -581,7 +619,15 @@ type "C:\Temp\DocTemp\doctemp.txtline%lcount:~-9%" > "C:\Temp\DocTemp\doctemp.tx
 :rebuildlinebyline
 set /a lcount+=1
 type "C:\Temp\DocTemp\doctemp.txtline%lcount:~-9%" >> "C:\Temp\DocTemp\doctemp.txt"
-if %lcount:~-9% geq %fcount2% goto :textadd
+if %lcount:~-9% geq %fcount2% (
+    call :SPLIT
+    setlocal ENABLEDELAYEDEXPANSION
+    del C:\Temp\DocTemp\temp.txt 2> nul
+    set /p fcount2= < "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+    del "C:\Temp\DocTemp\doctemp.txtfcount"  2> nul
+    set lcount=2000000000
+    goto :textadd 
+)
 goto :rebuildlinebyline
 
 :undoclear
