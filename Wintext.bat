@@ -364,7 +364,7 @@ echo Flags:
 echo -t : Typefile : Use the faster typefile mode in %wintext% (way faster, prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
-echo v4 (i guess) copyright 2020 Logan C.
+echo v4.1 (i guess) copyright 2020 Logan C.
 exit /b
 
 :splitfile
@@ -508,6 +508,8 @@ goto :textadd
 
 :linebreak
 echo. >> "C:\Temp\DocTemp\doctemp.txt"
+echo. > "C:\Temp\DocTemp\temp.txt"
+call :addline
 goto :textadd
 
 :line
