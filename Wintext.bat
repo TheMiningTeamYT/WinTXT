@@ -252,7 +252,7 @@ set baseline=
 echo !text! >> "C:\Temp\DocTemp\doctemp.txt" 2> nul
 echo !text! > "C:\Temp\DocTemp\temp.txt" 2> nul
 call :addline
-set /p fcount2= < C:\Temp\DocTemp\fcount 2> nul
+set /p fcount2=< C:\Temp\DocTemp\fcount 2> nul
 del C:\Temp\DocTemp\fcount > nul 2> nul
 echo This File Exists^! > "C:\Temp\DocTemp\unsaved" 2> nul
 if not "%dir%"=="%baseline%" echo %dir%> "C:\Temp\DocTemp\dir" 2> nul
@@ -510,6 +510,7 @@ goto :textadd
 echo. >> "C:\Temp\DocTemp\doctemp.txt"
 echo. > "C:\Temp\DocTemp\temp.txt"
 call :addline
+set /p fcount2=< C:\Temp\DocTemp\fcount 2> nul
 goto :textadd
 
 :line
