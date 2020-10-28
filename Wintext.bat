@@ -63,8 +63,6 @@ set input=1
 goto :fileopen
 
 :helparg1
-echo wtf
-pause
 goto :commandlinehelp
 
 :helparg2
