@@ -18,6 +18,7 @@ set arg1="%1"
 set arg2="%2"
 set arg3="%3"
 set arg4="%4"
+
 (echo "%arg1%" | findstr /i /c:"-?" >nul ) && (goto :helparg1) || (echo. > nul)
 (echo "%arg2%" | findstr /i /c:"-?" >nul ) && (goto :helparg2) || (echo. > nul)
 (echo "%arg3%" | findstr /i /c:"-?" >nul ) && (goto :helparg3) || (echo. > nul)
@@ -25,40 +26,9 @@ set arg4="%4"
 (echo "%arg1%" | findstr /i /c:"/n" >nul ) && (goto :namearg1) || (echo. > nul)
 (echo "%arg2%" | findstr /i /c:"/n" >nul ) && (goto :namearg2) || (echo. > nul)
 (echo "%arg3%" | findstr /i /c:"/n" >nul ) && (goto :namearg3) || (echo. > nul)
-(echo "%arg1%" | findstr /i /c:"-t" >nul ) && (goto :targ1) || (echo. > nul )
-(echo "%arg2%" | findstr /i /c:"-t" >nul ) && (goto :targ2) || (echo. > nul )
 
 set baseline=""
 if "%arg1%"=="%baseline%" goto :beginning
-set input=1
-goto :fileopen
-
-:targ1
-set typefile=1
-if "%arg2%"=="%baseline%" goto :beginning
-set input=2
-goto :fileopen
-
-:2targ1
-set typefile=1
-goto :beginning
-
-:3targ1
-set typefile=1
-set input=2
-goto :fileopen
-
-:3targ2
-set typefile=1
-set input=1
-goto :fileopen
-
-:2targ1
-set typefile=1
-goto :beginning
-
-:targ2
-set typefile=1
 set input=1
 goto :fileopen
 
@@ -94,7 +64,6 @@ set WinTXT=%arg3%
 for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
 for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
 title %WinTXT%
-(echo "%arg1%" | findstr /i /c:"-t" >nul ) && (goto :2targ1) || (echo. > nul )
 set baseline=""
 if "%arg1%"=="%baseline%" goto :beginning
 set input=1
@@ -105,8 +74,6 @@ set WinTXT=%arg4%
 for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
 for /f "useback tokens=*" %%a in ('%WinTXT%') do set WinTXT=%%~a
 title %WinTXT% 
-(echo "%arg1%" | findstr /i /c:"-t" >nul ) && (goto :3targ1) || (echo. > nul )
-(echo "%arg2%" | findstr /i /c:"-t" >nul ) && (goto :3targ2) || (echo. > nul )
 set baseline=""
 if "%arg1%"=="%baseline%" goto :beginning
 if "%arg2%"=="%baseline%" goto :beginning
@@ -178,7 +145,8 @@ GOTO :EOF
 
 :textadd
 setlocal ENABLEDELAYEDEXPANSION
-if %exit% equ 1 exit /b
+if %exit% equ 1 ( 
+    exit /b )
 if not exist C:\Temp\DocTemp\ mkdir C:\Temp\DocTemp\
 set display=%dir%%filename%
 for /f "useback tokens=*" %%a in ('%display%') do set display=%%~a
@@ -239,10 +207,6 @@ if %commandsoff% equ 1 (
 (echo "!text!" | findstr /i /c:"/newline" >nul ) && (goto :newline) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/delline" >nul ) && (goto :delline) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/linebreak" >nul ) && (goto :linebreak) || (echo. > nul )
-(echo "!text!" | findstr /i /c:"/typefile" >nul ) && (goto :typefile) || (echo. > nul )
-(echo "!text!" | findstr /i /c:"/typefileonce" >nul ) && (goto :typefile) || (echo. > nul )
-(echo "!text!" | findstr /i /c:"/splitfileonce" >nul ) && (goto :splitfileonce) || (echo. > nul )
-(echo "!text!" | findstr /i /c:"/splitfile" >nul ) && (goto :splitfile) || (echo. > nul )
 (echo "!text!" | findstr /i /c:"/commandsoff" >nul ) && (goto :commandsoff) || (echo. > nul ) 
 (echo "!text!" | findstr /i /c:"/exit" >nul ) && (goto :undoclear) || (echo. > nul ) 
 (echo "!text!" | findstr /i /c:"/help" >nul ) && (goto :help) || (goto :addtext)
@@ -254,15 +218,15 @@ echo !text! > "C:\Temp\DocTemp\temp.txt" 2> nul
 call :addline
 set /p fcount2=< C:\Temp\DocTemp\fcount 2> nul
 del C:\Temp\DocTemp\fcount > nul 2> nul
-echo This File Exists^! > "C:\Temp\DocTemp\unsaved" 2> nul
-if not "%dir%"=="%baseline%" echo %dir%> "C:\Temp\DocTemp\dir" 2> nul
-echo %filename%> "C:\Temp\DocTemp\filename" 2> nul
-attrib -h "C:\Temp\DocTemp\undo" 2> nul
-echo %undo% > "C:\Temp\DocTemp\undo" 2> nul
-attrib +h "C:\Temp\DocTemp\unsaved" 2> nul
-attrib +h "C:\Temp\DocTemp\dir" 2> nul
-attrib +h "C:\Temp\DocTemp\filename" 2> nul
-attrib +h "C:\Temp\DocTemp\undo" 2> nul
+echo This File Exists^! > "C:\Temp\DocTemp\unsaved" 2 > nul
+if not "%dir%"=="%baseline%" echo %dir%> "C:\Temp\DocTemp\dir" 2 > nul
+echo %filename%> "C:\Temp\DocTemp\filename" 2 > nul
+attrib -h "C:\Temp\DocTemp\undo" > nul 2> nul
+echo %undo% > "C:\Temp\DocTemp\undo" > nul 2> nul
+attrib +h "C:\Temp\DocTemp\unsaved" > nul 2> nul
+attrib +h "C:\Temp\DocTemp\dir" > nul 2> nul
+attrib +h "C:\Temp\DocTemp\filename" > nul 2> nul
+attrib +h "C:\Temp\DocTemp\undo" > nul 2> nul
 goto :textadd
 
 :newline
@@ -273,7 +237,7 @@ goto :line
 set text=%text:/delline =%
 set lcount=2000000000
 set /a lcount+=!text!
-del /a h "C:\Temp\DocTemp\doctemp.txtline%lcount:~-9%"
+del /ah "C:\Temp\DocTemp\doctemp.txtline%lcount:~-9%"
 goto :rebuild
 
 :typefile
@@ -301,7 +265,7 @@ exit /b
 setlocal DISABLEDELAYEDEXPANSION 2> nul
 set /a lcount+=1
 echo %lcount:~-9% > C:\Temp\DocTemp\fcount
-attrib -h C:\Temp\DocTemp\doctemp.txtline%lcount:~-9% 2> nul
+attrib -h C:\Temp\DocTemp\doctemp.txtline%lcount:~-9% > nul 2> nul
 copy C:\Temp\DocTemp\temp.txt C:\Temp\DocTemp\doctemp.txtline%lcount:~-9% > nul 2> nul
 del C:\Temp\DocTemp\temp.txt > nul 2> nul
 attrib +h C:\Temp\DocTemp\doctemp.txtline%lcount:~-9% 2> nul
@@ -361,10 +325,9 @@ goto :textadd
 :commandlinehelp
 echo Syntax: %wintext% (file) (flags)
 echo Flags:
-echo -t : Typefile : Use the faster typefile mode in %wintext% (way faster, prevents use of line editing)
 echo -? : This help screen.
 echo It's not that hard!
-echo v4.1 (i guess) copyright 2020 Logan C.
+echo v4.2 (i guess) copyright 2020 Logan C.
 exit /b
 
 :splitfile
@@ -658,10 +621,6 @@ echo /help : This help screen.
 echo /redo : Redo the previous undone command.
 echo /delfile : Delete the current file. (can be undone with /undo.)
 echo /linebreak : Insert a line break.
-echo /typefile : Type the file normally instead of having the line markings. (can be enabled with the -t flag on startup)
-echo /typefileonce : Type the file normally once.
-echo /splitfile : Split the file (required for line editing) (enabled by default) (high performance impact)
-echo /splitfileonce : Split the file once.
 echo /commandsoff : Turn off all commands except:
 echo /commandson : Turns commands back off (can't be run before running /commandsoff)
 echo /editline (line number) : Edit that line
