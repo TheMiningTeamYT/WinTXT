@@ -4,7 +4,7 @@ set NormalName=WinTXTSDK
 set lowercasename=wintxtsdk
 color 17
 
-echo This up here is the customizable *^*
+rem This up here is the customizable *^*
 
 set arg1=%1
 set arg2=%2
